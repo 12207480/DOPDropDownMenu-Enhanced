@@ -1,11 +1,12 @@
 # DOPDropDownMenu-Enhanced
 DOPDropDownMenu 添加双列表 优化版 （double tableView, The optimization version ）
 
-首先 感谢 DOPDropDownMenu 作者的无私奉献和允许，https://github.com/dopcn/DOPDropDownMenu 
+首先 感谢 DOPDropDownMenu 作者的无私奉献和允许,  https://github.com/dopcn/DOPDropDownMenu 
 
 我在此基础上添加了双列表的应用，优化了代码，增强了稳定性，希望大家希望
 
-First , I thank the author of the DOPDropDownMenu of selfless dedication, https://github.com/dopcn/DOPDropDownMenu
+First , I thank the author of the DOPDropDownMenu of selfless dedication,  https://github.com/dopcn/DOPDropDownMenu
+
 on the basis of this,I add double tableView , to optimize the code, improves stability, hope you like
 
 ### 应用截图
