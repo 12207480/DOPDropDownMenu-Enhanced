@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>A5015735-ED79-4B1E-8505-DEE6FB7EBF90</string>
+	<key>IDESourceControlProjectName</key>
+	<string>DOPdemo</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>C4CFD17295A56B05D3137DC37FFF449B15C8F250</key>
+		<string>github.com:12207480/DOPDropDownMenu-Enhanced.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>DOPdemo.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>C4CFD17295A56B05D3137DC37FFF449B15C8F250</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>github.com:12207480/DOPDropDownMenu-Enhanced.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>C4CFD17295A56B05D3137DC37FFF449B15C8F250</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>C4CFD17295A56B05D3137DC37FFF449B15C8F250</string>
+			<key>IDESourceControlWCCName</key>
+			<string>DOPdemo</string>
+		</dict>
+	</array>
+</dict>
+</plist>
