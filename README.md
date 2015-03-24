@@ -7,3 +7,6 @@ DOPDropDownMenu 添加双列表 优化版
 
 ### 应用截图
 
+![image](https://raw.githubusercontent.com/12207480/DOPDropDownMenu-Enhanced/master/screenshot/dopmendemo.gif)
+
+### 用法
