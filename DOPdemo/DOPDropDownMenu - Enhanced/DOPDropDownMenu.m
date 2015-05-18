@@ -133,10 +133,13 @@ struct {
         
         if (!_isClickHaveItemValid &&_dataSourceFlags.numberOfItemsInRow
             && [_dataSource menu:self numberOfItemsInRow:0 column:0] > 0) {
-            
+            CATextLayer *title = (CATextLayer *)_titles[0];
+            title.string = [_dataSource menu:self titleForItemsInRowAtIndexPath:[DOPIndexPath indexPathWithCol:0 row:0 item:0]];
             [_delegate menu:self didSelectRowAtIndexPath:[DOPIndexPath indexPathWithCol:0 row:0 item:0]];
         } else if (_dataSourceFlags.numberOfRowsInColumn
                    && [_dataSource menu:self numberOfRowsInColumn:0] > 0){
+            CATextLayer *title = (CATextLayer *)_titles[0];
+            title.string = [_dataSource menu:self titleForRowAtIndexPath:[DOPIndexPath indexPathWithCol:0 row:0]];
             [_delegate menu:self didSelectRowAtIndexPath:[DOPIndexPath indexPathWithCol:0 row:0]];
         }
     }
