@@ -71,7 +71,8 @@ struct {
 }
 
 @property (nonatomic, assign) NSInteger currentSelectedMenudIndex;  // 当前选中列
-@property (nonatomic, assign) NSInteger currentSelectedMenudRow;    // 当前选中行
+//@property (nonatomic, assign) NSInteger currentSelectedMenudRow;    // 当前选中行
+@property (nonatomic, strong) NSMutableArray  *currentSelectRowArray;
 @property (nonatomic, assign) BOOL show;
 @property (nonatomic, assign) NSInteger numOfMenu;
 @property (nonatomic, assign) CGPoint origin;
@@ -158,6 +159,12 @@ struct {
         _numOfMenu = [_dataSource numberOfColumnsInMenu:self];
     } else {
         _numOfMenu = 1;
+    }
+    
+    _currentSelectRowArray = [NSMutableArray arrayWithCapacity:_numOfMenu];
+    
+    for (NSInteger index = 0; index < _numOfMenu; ++index) {
+        [_currentSelectRowArray addObject:@(0)];
     }
     
     _dataSourceFlags.numberOfRowsInColumn = [_dataSource respondsToSelector:@selector(menu:numberOfRowsInColumn:)];
@@ -472,8 +479,7 @@ struct {
         }
         _buttomImageView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width, kButtomImageViewHeight);
         [self.superview addSubview:_buttomImageView];
-        
-        //CGFloat tableViewHeight = ([_leftTableView numberOfRowsInSection:0] > 5) ? (5 * tableView.rowHeight) : ([_leftTableView numberOfRowsInSection:0] * tableView.rowHeight);
+  
         NSInteger num = [_leftTableView numberOfRowsInSection:0];
         CGFloat tableViewHeight = num * kTableViewCellHeight > kTableViewHeight+1 ? kTableViewHeight:num*kTableViewCellHeight+1;
         
@@ -547,8 +553,9 @@ struct {
         }
     } else {
         if (_dataSourceFlags.numberOfItemsInRow) {
+            NSInteger currentSelectedMenudRow = [_currentSelectRowArray[_currentSelectedMenudIndex] integerValue];
             return [_dataSource menu:self
-                    numberOfItemsInRow:_currentSelectedMenudRow column:_currentSelectedMenudIndex];
+                    numberOfItemsInRow:currentSelectedMenudRow column:_currentSelectedMenudIndex];
         } else {
             NSAssert(0 == 1, @"required method of dataSource protocol should be implemented");
             return 0;
@@ -577,7 +584,10 @@ struct {
             NSAssert(0 == 1, @"dataSource method needs to be implemented");
         }
         
-        if ([cell.textLabel.text isEqualToString:[(CATextLayer *)[_titles objectAtIndex:_currentSelectedMenudIndex] string]]) {
+//        if ([cell.textLabel.text isEqualToString:[(CATextLayer *)[_titles objectAtIndex:_currentSelectedMenudIndex] string]])
+        NSInteger currentSelectedMenudRow = [_currentSelectRowArray[_currentSelectedMenudIndex] integerValue];
+        if (indexPath.row == currentSelectedMenudRow)
+        {
            [tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
         }
         
@@ -591,12 +601,14 @@ struct {
         
     } else {
         if (_dataSourceFlags.titleForItemsInRowAtIndexPath) {
-            cell.textLabel.text = [_dataSource menu:self titleForItemsInRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:_currentSelectedMenudRow item:indexPath.row]];
+            NSInteger currentSelectedMenudRow = [_currentSelectRowArray[_currentSelectedMenudIndex] integerValue];
+            cell.textLabel.text = [_dataSource menu:self titleForItemsInRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:currentSelectedMenudRow item:indexPath.row]];
         } else {
             NSAssert(0 == 1, @"dataSource method needs to be implemented");
         }
         if ([cell.textLabel.text isEqualToString:[(CATextLayer *)[_titles objectAtIndex:_currentSelectedMenudIndex] string]]) {
-            [_leftTableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:_currentSelectedMenudRow inSection:0] animated:YES scrollPosition:UITableViewScrollPositionMiddle];
+            NSInteger currentSelectedMenudRow = [_currentSelectRowArray[_currentSelectedMenudIndex] integerValue];
+            [_leftTableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:currentSelectedMenudRow inSection:0] animated:YES scrollPosition:UITableViewScrollPositionMiddle];
             [_rightTableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionMiddle];
         }
         cell.backgroundColor = [UIColor whiteColor];
@@ -624,7 +636,8 @@ struct {
     } else {
         [self confiMenuWithSelectItem:indexPath.item];
         if (self.delegate && [_delegate respondsToSelector:@selector(menu:didSelectRowAtIndexPath:)]) {
-            [self.delegate menu:self didSelectRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:_currentSelectedMenudRow item:indexPath.row]];
+            NSInteger currentSelectedMenudRow = [_currentSelectRowArray[_currentSelectedMenudIndex] integerValue];
+            [self.delegate menu:self didSelectRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:currentSelectedMenudRow item:indexPath.row]];
         } else {
             //TODO: delegate is nil
             
@@ -634,11 +647,12 @@ struct {
 
 - (BOOL )confiMenuWithSelectRow:(NSInteger)row {
     
-    _currentSelectedMenudRow = row;
+    _currentSelectRowArray[_currentSelectedMenudIndex] = @(row);
+    
     
     CATextLayer *title = (CATextLayer *)_titles[_currentSelectedMenudIndex];
     
-    if (_dataSourceFlags.numberOfItemsInRow && [_dataSource menu:self numberOfItemsInRow:_currentSelectedMenudRow column:_currentSelectedMenudIndex]> 0) {
+    if (_dataSourceFlags.numberOfItemsInRow && [_dataSource menu:self numberOfItemsInRow:row column:_currentSelectedMenudIndex]> 0) {
         
         // 有双列表 有item数据
         if (self.isClickHaveItemValid) {
@@ -663,7 +677,8 @@ struct {
 - (void)confiMenuWithSelectItem:(NSInteger)item {
     
     CATextLayer *title = (CATextLayer *)_titles[_currentSelectedMenudIndex];
-    title.string = [_dataSource menu:self titleForItemsInRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:_currentSelectedMenudRow item:item]];
+    NSInteger currentSelectedMenudRow = [_currentSelectRowArray[_currentSelectedMenudIndex] integerValue];
+    title.string = [_dataSource menu:self titleForItemsInRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:currentSelectedMenudRow item:item]];
     [self animateIdicator:_indicators[_currentSelectedMenudIndex] background:_backGroundView tableView:_leftTableView title:_titles[_currentSelectedMenudIndex] forward:NO complecte:^{
         _show = NO;
     }];
