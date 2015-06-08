@@ -129,22 +129,46 @@ struct {
 
 - (void)selectDefalutIndexPath
 {
-    if (_dataSource && _delegate
-        && [_delegate respondsToSelector:@selector(menu:didSelectRowAtIndexPath:)]) {
-        
-        if (!_isClickHaveItemValid &&_dataSourceFlags.numberOfItemsInRow
-            && [_dataSource menu:self numberOfItemsInRow:0 column:0] > 0) {
-            CATextLayer *title = (CATextLayer *)_titles[0];
-            title.string = [_dataSource menu:self titleForItemsInRowAtIndexPath:[DOPIndexPath indexPathWithCol:0 row:0 item:0]];
-            [_delegate menu:self didSelectRowAtIndexPath:[DOPIndexPath indexPathWithCol:0 row:0 item:0]];
-        } else if (_dataSourceFlags.numberOfRowsInColumn
-                   && [_dataSource menu:self numberOfRowsInColumn:0] > 0){
-            CATextLayer *title = (CATextLayer *)_titles[0];
-            title.string = [_dataSource menu:self titleForRowAtIndexPath:[DOPIndexPath indexPathWithCol:0 row:0]];
-            [_delegate menu:self didSelectRowAtIndexPath:[DOPIndexPath indexPathWithCol:0 row:0]];
-        }
+    [self selectIndexPath:[DOPIndexPath indexPathWithCol:0 row:0]];
+}
+
+- (void)selectIndexPath:(DOPIndexPath *)indexPath
+{
+    if (!_dataSource || !_delegate
+        || ![_delegate respondsToSelector:@selector(menu:didSelectRowAtIndexPath:)]) {
+        return;
     }
     
+    if (_dataSourceFlags.numberOfRowsInColumn <= indexPath.column || [_dataSource menu:self numberOfRowsInColumn:indexPath.column] <= indexPath.row) {
+        return;
+    }
+    
+    CATextLayer *title = (CATextLayer *)_titles[indexPath.column];
+    
+    if (indexPath.item < 0 ) {
+        if (!_isClickHaveItemValid && [_dataSource menu:self numberOfItemsInRow:indexPath.row column:indexPath.column] > 0){
+            title.string = [_dataSource menu:self titleForItemsInRowAtIndexPath:[DOPIndexPath indexPathWithCol:indexPath.column row:indexPath.row item:0]];
+            [_delegate menu:self didSelectRowAtIndexPath:[DOPIndexPath indexPathWithCol:indexPath.column row:indexPath.row item:0]];
+        }else {
+            title.string = [_dataSource menu:self titleForRowAtIndexPath:indexPath];
+            [_delegate menu:self didSelectRowAtIndexPath:indexPath];
+        }
+        if (_currentSelectRowArray.count > indexPath.column) {
+            _currentSelectRowArray[indexPath.column] = @(indexPath.row);
+        }
+        CGSize size = [self calculateTitleSizeWithString:title.string];
+        CGFloat sizeWidth = (size.width < (self.frame.size.width / _numOfMenu) - 25) ? size.width : self.frame.size.width / _numOfMenu - 25;
+        title.bounds = CGRectMake(0, 0, sizeWidth, size.height);
+    }else if ([_dataSource menu:self numberOfItemsInRow:indexPath.row column:indexPath.column] > indexPath.column) {
+        title.string = [_dataSource menu:self titleForRowAtIndexPath:indexPath];
+        [_delegate menu:self didSelectRowAtIndexPath:indexPath];
+        if (_currentSelectRowArray.count > indexPath.column) {
+            _currentSelectRowArray[indexPath.column] = @(indexPath.row);
+        }
+        CGSize size = [self calculateTitleSizeWithString:title.string];
+        CGFloat sizeWidth = (size.width < (self.frame.size.width / _numOfMenu) - 25) ? size.width : self.frame.size.width / _numOfMenu - 25;
+        title.bounds = CGRectMake(0, 0, sizeWidth, size.height);
+    }
 }
 
 #pragma mark - setter
@@ -282,8 +306,6 @@ struct {
     
     layer.position = position;
     layer.bounds = CGRectMake(0, 0, self.frame.size.width/self.numOfMenu, self.frame.size.height-1);
-//    NSLog(@"bglayer bounds:%@",NSStringFromCGRect(layer.bounds));
-//    NSLog(@"bglayer position:%@", NSStringFromCGPoint(position));
     layer.backgroundColor = color.CGColor;
     
     return layer;
@@ -325,8 +347,6 @@ struct {
     layer.bounds = CGPathGetBoundingBox(bound);
     CGPathRelease(bound);
     layer.position = point;
-    //NSLog(@"separator position: %@",NSStringFromCGPoint(point));
-    //NSLog(@"separator bounds: %@",NSStringFromCGRect(layer.bounds));
     return layer;
 }
 
@@ -355,7 +375,7 @@ struct {
     //CGFloat fontSize = 14.0;
     NSDictionary *dic = @{NSFontAttributeName: [UIFont systemFontOfSize:_fontSize]};
     CGSize size = [string boundingRectWithSize:CGSizeMake(280, 0) options:NSStringDrawingTruncatesLastVisibleLine | NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading attributes:dic context:nil].size;
-    return size;
+    return CGSizeMake(ceilf(size.width)+2, size.height);
 }
 
 #pragma mark - gesture handle
@@ -400,7 +420,6 @@ struct {
     [self animateIdicator:_indicators[_currentSelectedMenudIndex] background:_backGroundView tableView:_leftTableView title:_titles[_currentSelectedMenudIndex] forward:NO complecte:^{
         _show = NO;
     }];
-    //[(CALayer *)self.bgLayers[_currentSelectedMenudIndex] setBackgroundColor:[UIColor whiteColor].CGColor];
 }
 
 #pragma mark - animation method
