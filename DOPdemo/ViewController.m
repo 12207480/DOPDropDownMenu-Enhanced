@@ -17,6 +17,7 @@
 @property (nonatomic, strong) NSArray *areas;
 
 @property (nonatomic, strong) NSArray *sorts;
+@property (nonatomic, weak) DOPDropDownMenu *menu;
 @end
 
 @implementation ViewController
@@ -26,6 +27,7 @@
     // Do any additional setup after loading the view, typically from a nib.
     self.title = @"DOPDropDownMenu";
     
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"重新加载" style:UIBarButtonSystemItemDone target:self action:@selector(menuReloadData)];
     // 数据
     self.classifys = @[@"美食",@"今日新单",@"电影",@"酒店"];
     self.cates = @[@"自助餐",@"快餐",@"火锅",@"日韩料理",@"西餐",@"烧烤小吃"];
@@ -39,8 +41,14 @@
     menu.delegate = self;
     menu.dataSource = self;
     [self.view addSubview:menu];
-    
+    _menu = menu;
     [menu selectDefalutIndexPath];
+}
+
+- (void)menuReloadData
+{
+    self.classifys = @[@"美食",@"今日新单",@"电影"];
+    [_menu reloadData];
 }
 
 - (NSInteger)numberOfColumnsInMenu:(DOPDropDownMenu *)menu

@@ -97,6 +97,9 @@
 // 获取title
 - (NSString *)titleForRowAtIndexPath:(DOPIndexPath *)indexPath;
 
+// 重新加载数据
+- (void)reloadData;
+
 // 创建menu 第一次显示 不会调用点击代理，这个手动调用
 - (void)selectDefalutIndexPath;
 

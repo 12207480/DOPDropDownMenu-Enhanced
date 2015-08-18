@@ -127,6 +127,19 @@ struct {
     return [self.dataSource menu:self titleForRowAtIndexPath:indexPath];
 }
 
+- (void)reloadData
+{
+    [self animateBackGroundView:_backGroundView show:NO complete:^{
+        [self animateTableView:nil show:NO complete:^{
+            _show = NO;
+            id VC = self.dataSource;
+            self.dataSource = nil;
+            self.dataSource = VC;
+        }];
+    }];
+
+}
+
 - (void)selectDefalutIndexPath
 {
     [self selectIndexPath:[DOPIndexPath indexPathWithCol:0 row:0]];
@@ -703,10 +716,6 @@ struct {
     }];
 
 }
-
-
-
-
 
 @end
 
