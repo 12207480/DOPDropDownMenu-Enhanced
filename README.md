@@ -1,4 +1,9 @@
 # DOPDropDownMenu-Enhanced
+
+*New Update:*
+support cell image 
+新增cel 图片 支持
+
 DOPDropDownMenu 添加双列表 优化版 （double tableView, The optimization version ）
 
 首先 感谢 DOPDropDownMenu 作者的无私奉献和允许,  https://github.com/dopcn/DOPDropDownMenu 
