@@ -47,6 +47,8 @@
  */
 - (NSInteger)numberOfColumnsInMenu:(DOPDropDownMenu *)menu;
 
+// 返回 menu 第column列 每行image
+- (NSString *)menu:(DOPDropDownMenu *)menu imageNameForRowAtIndexPath:(DOPIndexPath *)indexPath;
 
 /** 新增
  *  当有column列 row 行 返回有多少个item ，如果>0，说明有二级列表 ，=0 没有二级列表

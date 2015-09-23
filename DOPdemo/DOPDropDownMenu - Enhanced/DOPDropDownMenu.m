@@ -66,6 +66,7 @@ struct {
     unsigned int numberOfItemsInRow :1;
     unsigned int titleForRowAtIndexPath :1;
     unsigned int titleForItemsInRowAtIndexPath :1;
+    unsigned int imageNameForRowAtIndexPath :1;
     
 }_dataSourceFlags;
 }
@@ -208,6 +209,7 @@ struct {
     _dataSourceFlags.numberOfItemsInRow = [_dataSource respondsToSelector:@selector(menu:numberOfItemsInRow:column:)];
     _dataSourceFlags.titleForRowAtIndexPath = [_dataSource respondsToSelector:@selector(menu:titleForRowAtIndexPath:)];
     _dataSourceFlags.titleForItemsInRowAtIndexPath = [_dataSource respondsToSelector:@selector(menu:titleForItemsInRowAtIndexPath:)];
+    _dataSourceFlags.imageNameForRowAtIndexPath = [_dataSource respondsToSelector:@selector(menu:imageNameForRowAtIndexPath:)];
     
     _bottomShadow.hidden = NO;
     CGFloat textLayerInterval = self.frame.size.width / ( _numOfMenu * 2);
@@ -612,6 +614,17 @@ struct {
     if (tableView == _leftTableView) {
         if (_dataSourceFlags.titleForRowAtIndexPath) {
             cell.textLabel.text = [_dataSource menu:self titleForRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:indexPath.row]];
+            if (_dataSourceFlags.imageNameForRowAtIndexPath) {
+                NSString *imageName = [_dataSource menu:self imageNameForRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:indexPath.row]];
+                if (imageName && imageName.length > 0) {
+                    cell.imageView.image = [UIImage imageNamed:imageName];
+                }else {
+                    cell.imageView.image = nil;
+                }
+                
+            }else {
+                cell.imageView.image = nil;
+            }
         } else {
             NSAssert(0 == 1, @"dataSource method needs to be implemented");
         }
