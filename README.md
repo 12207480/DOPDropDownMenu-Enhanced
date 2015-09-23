@@ -15,7 +15,7 @@ First, I would like to thank the author of the [DOPDropDownMenu](https://github.
 This enhanced version includes beautiful improvements to the interface, double tableview capability, optimized code, and improved stability.  Enjoy!
 
 ### 应用截图
-
+![image](https://raw.githubusercontent.com/12207480/DOPDropDownMenu-Enhanced/master/screenshot/dopmenu.png)
 ![image](https://raw.githubusercontent.com/12207480/DOPDropDownMenu-Enhanced/master/screenshot/dopmendemo.gif)
 
 ### 用法
