@@ -67,6 +67,7 @@ struct {
     unsigned int titleForRowAtIndexPath :1;
     unsigned int titleForItemsInRowAtIndexPath :1;
     unsigned int imageNameForRowAtIndexPath :1;
+    unsigned int imageNameForItemsInRowAtIndexPath :1;
     
 }_dataSourceFlags;
 }
@@ -210,6 +211,7 @@ struct {
     _dataSourceFlags.titleForRowAtIndexPath = [_dataSource respondsToSelector:@selector(menu:titleForRowAtIndexPath:)];
     _dataSourceFlags.titleForItemsInRowAtIndexPath = [_dataSource respondsToSelector:@selector(menu:titleForItemsInRowAtIndexPath:)];
     _dataSourceFlags.imageNameForRowAtIndexPath = [_dataSource respondsToSelector:@selector(menu:imageNameForRowAtIndexPath:)];
+    _dataSourceFlags.imageNameForItemsInRowAtIndexPath = [_dataSource respondsToSelector:@selector(menu:imageNameForItemsInRowAtIndexPath:)];
     
     _bottomShadow.hidden = NO;
     CGFloat textLayerInterval = self.frame.size.width / ( _numOfMenu * 2);
@@ -648,6 +650,19 @@ struct {
         if (_dataSourceFlags.titleForItemsInRowAtIndexPath) {
             NSInteger currentSelectedMenudRow = [_currentSelectRowArray[_currentSelectedMenudIndex] integerValue];
             cell.textLabel.text = [_dataSource menu:self titleForItemsInRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:currentSelectedMenudRow item:indexPath.row]];
+            
+            if (_dataSourceFlags.imageNameForItemsInRowAtIndexPath) {
+                NSString *imageName = [_dataSource menu:self imageNameForItemsInRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:currentSelectedMenudRow item:indexPath.row]];
+                
+                if (imageName && imageName.length > 0) {
+                    cell.imageView.image = [UIImage imageNamed:imageName];
+                }else {
+                    cell.imageView.image = nil;
+                }
+            }else {
+                cell.imageView.image = nil;
+            }
+            
         } else {
             NSAssert(0 == 1, @"dataSource method needs to be implemented");
         }

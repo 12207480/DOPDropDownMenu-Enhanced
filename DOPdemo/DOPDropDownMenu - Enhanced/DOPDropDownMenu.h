@@ -61,6 +61,8 @@
  *  如果都没有可以不实现该协议
  */
 - (NSString *)menu:(DOPDropDownMenu *)menu titleForItemsInRowAtIndexPath:(DOPIndexPath *)indexPath;
+
+- (NSString *)menu:(DOPDropDownMenu *)menu imageNameForItemsInRowAtIndexPath:(DOPIndexPath *)indexPath;
 @end
 
 #pragma mark - delegate

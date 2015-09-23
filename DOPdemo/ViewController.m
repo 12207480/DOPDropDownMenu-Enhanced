@@ -86,6 +86,14 @@
     return nil;
 }
 
+- (NSString *)menu:(DOPDropDownMenu *)menu imageNameForItemsInRowAtIndexPath:(DOPIndexPath *)indexPath
+{
+    if (indexPath.column == 0 && indexPath.item >= 0) {
+        return [NSString stringWithFormat:@"ic_filter_category_%ld",indexPath.item];
+    }
+    return nil;
+}
+
 - (NSInteger)menu:(DOPDropDownMenu *)menu numberOfItemsInRow:(NSInteger)row column:(NSInteger)column
 {
     if (column == 0) {
