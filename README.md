@@ -44,6 +44,8 @@ This enhanced version includes beautiful improvements to the interface, double t
  */
 - (NSInteger)numberOfColumnsInMenu:(DOPDropDownMenu *)menu;
 
+// 新增  返回 menu 第column列 每行image
+- (NSString *)menu:(DOPDropDownMenu *)menu imageNameForRowAtIndexPath:(DOPIndexPath *)indexPath;
 
 /** 新增
  *  当有column列 row 行 返回有多少个item ，如果>0，说明有二级列表 ，=0 没有二级列表
@@ -56,6 +58,10 @@ This enhanced version includes beautiful improvements to the interface, double t
  *  如果都没有可以不实现该协议
  */
 - (NSString *)menu:(DOPDropDownMenu *)menu titleForItemsInRowAtIndexPath:(DOPIndexPath *)indexPath;
+
+// 新增 当有column列 row 行 item项 image
+- (NSString *)menu:(DOPDropDownMenu *)menu imageNameForItemsInRowAtIndexPath:(DOPIndexPath *)indexPath;
+
 @end
 
 #pragma mark - delegate
