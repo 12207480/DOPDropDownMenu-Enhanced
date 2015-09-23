@@ -2,7 +2,7 @@
 
 **New Update:**<br>
 support cell image 
-新增cel 图片 支持
+新增cell 图片 支持
 
 DOPDropDownMenu 添加双列表 优化版 （double tableView, The optimization version ）
 
