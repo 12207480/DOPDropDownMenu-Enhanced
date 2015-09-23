@@ -62,6 +62,7 @@
  */
 - (NSString *)menu:(DOPDropDownMenu *)menu titleForItemsInRowAtIndexPath:(DOPIndexPath *)indexPath;
 
+// 新增 当有column列 row 行 item项 image
 - (NSString *)menu:(DOPDropDownMenu *)menu imageNameForItemsInRowAtIndexPath:(DOPIndexPath *)indexPath;
 @end
 
