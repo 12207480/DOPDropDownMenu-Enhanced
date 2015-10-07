@@ -15,7 +15,7 @@
 @property (nonatomic, assign) NSInteger row;
 @property (nonatomic, assign) NSInteger item;
 - (instancetype)initWithColumn:(NSInteger)column row:(NSInteger)row;
-// default item = -1 
+// default item = -1
 + (instancetype)indexPathWithCol:(NSInteger)col row:(NSInteger)row;
 + (instancetype)indexPathWithCol:(NSInteger)col row:(NSInteger)row item:(NSInteger)item;
 @end
@@ -64,6 +64,7 @@
 
 // 新增 当有column列 row 行 item项 image
 - (NSString *)menu:(DOPDropDownMenu *)menu imageNameForItemsInRowAtIndexPath:(DOPIndexPath *)indexPath;
+
 @end
 
 #pragma mark - delegate
@@ -73,6 +74,13 @@
  *  点击代理，点击了第column 第row 或者item项，如果 item >=0
  */
 - (void)menu:(DOPDropDownMenu *)menu didSelectRowAtIndexPath:(DOPIndexPath *)indexPath;
+
+/** 新增
+ *  return nil if you don't want to user select specified indexpath
+ *  optional
+ */
+- (NSIndexPath *)menu:(DOPDropDownMenu *)menu willSelectRowAtIndexPath:(DOPIndexPath *)indexPath;
+
 @end
 
 #pragma mark - interface
@@ -89,6 +97,8 @@
 // 当有二级列表item时，点击row 是否调用点击代理方法
 @property (nonatomic, assign) BOOL isClickHaveItemValid;
 
+@property (nonatomic, getter=isRemainMenuTitle) BOOL remainMenuTitle; // 切换条件时是否更改menu title
+@property (nonatomic, strong) NSMutableArray  *currentSelectRowArray; // 恢复默认选项用
 /**
  *  the width of menu will be set to screen width defaultly
  *
@@ -108,10 +118,11 @@
 // 创建menu 第一次显示 不会调用点击代理，这个手动调用
 - (void)selectDefalutIndexPath;
 
-- (void)selectIndexPath:(DOPIndexPath *)indexPath;
+- (void)selectIndexPath:(DOPIndexPath *)indexPath; // 默认trigger delegate
 
+- (void)selectIndexPath:(DOPIndexPath *)indexPath triggerDelegate:(BOOL)trigger; // 调用调理
 @end
 
 // 版权属于原作者
 // http://code4app.com (cn) http://code4app.net (en)
-// 发布代码于最专业的源码分享网站: Code4App.com 
+// 发布代码于最专业的源码分享网站: Code4App.com
