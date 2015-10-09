@@ -110,6 +110,7 @@
 #define kTableViewCellHeight 43
 #define kTableViewHeight 300
 #define kButtomImageViewHeight 21
+
 #define kTextColor [UIColor colorWithRed:51/255.0 green:51/255.0 blue:51/255.0 alpha:1]
 #define kSeparatorColor [UIColor colorWithRed:219/255.0 green:219/255.0 blue:219/255.0 alpha:1]
 #define kCellBgColor [UIColor colorWithRed:245/255.0 green:245/255.0 blue:245/255.0 alpha:1]
@@ -317,7 +318,6 @@
         _rightTableView.delegate = self;
         _rightTableView.separatorColor = kSeparatorColor;
         _rightTableView.separatorInset = UIEdgeInsetsZero;
-        //_rightTableView.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1.0];
         
         _buttomImageView = [[UIImageView alloc]initWithFrame:CGRectMake(origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width, kButtomImageViewHeight)];
         _buttomImageView.image = [UIImage imageNamed:@"icon_chose_bottom"];
@@ -713,7 +713,7 @@
         return [self.delegate menu:self willSelectRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:indexPath.row]];
     } else {
         //TODO: delegate is nil
-        return nil;
+        return indexPath;
     }
 }
 
@@ -784,6 +784,3 @@
 
 @end
 
-// 版权属于原作者
-// http://code4app.com (cn) http://code4app.net (en)
-// 发布代码于最专业的源码分享网站: Code4App.com 
