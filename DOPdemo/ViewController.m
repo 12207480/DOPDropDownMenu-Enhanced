@@ -52,6 +52,9 @@
     self.classifys = @[@"美食",@"今日新单",@"电影"];
     [_menu reloadData];
 }
+- (IBAction)selectIndexPathAction:(id)sender {
+    [_menu selectIndexPath:[DOPIndexPath indexPathWithCol:0 row:2 item:2]];
+}
 
 - (NSInteger)numberOfColumnsInMenu:(DOPDropDownMenu *)menu
 {
