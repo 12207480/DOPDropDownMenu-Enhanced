@@ -475,6 +475,13 @@
     }];
 }
 
+- (void)hideMenu
+{
+    if (_show) {
+        [self backgroundTapped:nil];
+    }
+}
+
 #pragma mark - animation method
 - (void)animateIndicator:(CAShapeLayer *)indicator Forward:(BOOL)forward complete:(void(^)())complete {
     [CATransaction begin];
