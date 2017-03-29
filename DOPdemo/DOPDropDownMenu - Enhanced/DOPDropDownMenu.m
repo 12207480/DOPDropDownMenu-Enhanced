@@ -91,7 +91,8 @@
 @property (nonatomic, copy) NSArray *titles;
 @property (nonatomic, copy) NSArray *indicators;
 @property (nonatomic, copy) NSArray *bgLayers;
-
+//add by xiyang
+@property (nonatomic, retain) DOPIndexPath *currentIndexPath; //当前选中的index
 @end
 
 #define IS_IPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
@@ -152,7 +153,7 @@
 {
     [self animateBackGroundView:_backGroundView show:NO complete:^{
         [self animateTableView:nil show:NO complete:^{
-            _show = NO;
+            self.show = NO;
             id VC = self.dataSource;
             self.dataSource = nil;
             self.dataSource = VC;
@@ -197,7 +198,7 @@
         CGSize size = [self calculateTitleSizeWithString:title.string];
         CGFloat sizeWidth = (size.width < (self.frame.size.width / _numOfMenu) - 25) ? size.width : self.frame.size.width / _numOfMenu - 25;
         title.bounds = CGRectMake(0, 0, sizeWidth, size.height);
-    }else if ([_dataSource menu:self numberOfItemsInRow:indexPath.row column:indexPath.column] > indexPath.column) {
+    }else if ([_dataSource menu:self numberOfItemsInRow:indexPath.row column:indexPath.column] > 0) { //changed by xiyang 解决当column不为0时默认选中为column=1，row=0，item=0导致无法选中的bug
         title.string = [_dataSource menu:self titleForItemsInRowAtIndexPath:indexPath];
         if (trigger) {
             [_delegate menu:self didSelectRowAtIndexPath:indexPath];
@@ -291,6 +292,19 @@
     _bgLayers = [tempBgLayers copy];
 }
 
+//add by xiyang
+-(void)setShow:(BOOL)show{
+    _show = show;
+    if (!show) {
+        if (self.currentIndexPath!=nil) {
+            
+            if (self.finishedBlock) {
+                self.finishedBlock(self.currentIndexPath);
+            }
+        }
+        NSLog(@"收回");
+    }
+}
 #pragma mark - init method
 - (instancetype)initWithOrigin:(CGPoint)origin andHeight:(CGFloat)height {
     CGSize screenSize = [UIScreen mainScreen].bounds.size;
@@ -298,7 +312,7 @@
     if (self) {
         _origin = origin;
         _currentSelectedMenudIndex = -1;
-        _show = NO;
+        self.show = NO;
         _fontSize = 14;
         _cellStyle = UITableViewCellStyleValue1;
         _separatorColor = kSeparatorColor;
@@ -453,7 +467,7 @@
     if (tapIndex == _currentSelectedMenudIndex && _show) {
         [self animateIdicator:_indicators[_currentSelectedMenudIndex] background:_backGroundView tableView:_leftTableView title:_titles[_currentSelectedMenudIndex] forward:NO complecte:^{
             _currentSelectedMenudIndex = tapIndex;
-            _show = NO;
+            self.show = NO;
         }];
     } else {
         _currentSelectedMenudIndex = tapIndex;
@@ -463,7 +477,7 @@
         }
         
         [self animateIdicator:_indicators[tapIndex] background:_backGroundView tableView:_leftTableView title:_titles[tapIndex] forward:YES complecte:^{
-            _show = YES;
+            self.show = YES;
         }];
     }
 }
@@ -471,7 +485,7 @@
 - (void)backgroundTapped:(UITapGestureRecognizer *)paramSender
 {
     [self animateIdicator:_indicators[_currentSelectedMenudIndex] background:_backGroundView tableView:_leftTableView title:_titles[_currentSelectedMenudIndex] forward:NO complecte:^{
-        _show = NO;
+        self.show = NO;
     }];
 }
 
@@ -799,7 +813,7 @@
         title.string = [_dataSource menu:self titleForRowAtIndexPath:
                         [DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:self.isRemainMenuTitle ? 0 : row]];
         [self animateIdicator:_indicators[_currentSelectedMenudIndex] background:_backGroundView tableView:_leftTableView title:_titles[_currentSelectedMenudIndex] forward:NO complecte:^{
-            _show = NO;
+            self.show = NO;
         }];
         return YES;
     }
@@ -810,7 +824,7 @@
     NSInteger currentSelectedMenudRow = [_currentSelectRowArray[_currentSelectedMenudIndex] integerValue];
     title.string = [_dataSource menu:self titleForItemsInRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:currentSelectedMenudRow item:item]];
     [self animateIdicator:_indicators[_currentSelectedMenudIndex] background:_backGroundView tableView:_leftTableView title:_titles[_currentSelectedMenudIndex] forward:NO complecte:^{
-        _show = NO;
+        self.show = NO;
     }];
     
 }

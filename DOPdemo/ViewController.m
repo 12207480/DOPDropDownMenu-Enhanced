@@ -42,9 +42,17 @@
     menu.dataSource = self;
     [self.view addSubview:menu];
     _menu = menu;
-    
-    // 创建menu 第一次显示 不会调用点击代理，可以用这个手动调用
-    [menu selectDefalutIndexPath];
+    //当下拉菜单收回时的回调，用于网络请求新的数据
+    _menu.finishedBlock=^(DOPIndexPath *indexPath){
+        if (indexPath.item >= 0) {
+            NSLog(@"收起:点击了 %ld - %ld - %ld 项目",indexPath.column,indexPath.row,indexPath.item);
+        }else {
+            NSLog(@"收起:点击了 %ld - %ld 项目",indexPath.column,indexPath.row);
+        }
+    };
+//     创建menu 第一次显示 不会调用点击代理，可以用这个手动调用
+//    [menu selectDefalutIndexPath];
+    [menu selectIndexPath:[DOPIndexPath indexPathWithCol:0 row:0 item:0]];
 }
 
 - (void)menuReloadData
