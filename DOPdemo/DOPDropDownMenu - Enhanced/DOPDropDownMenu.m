@@ -198,6 +198,7 @@
         CGSize size = [self calculateTitleSizeWithString:title.string];
         CGFloat sizeWidth = (size.width < (self.frame.size.width / _numOfMenu) - 25) ? size.width : self.frame.size.width / _numOfMenu - 25;
         title.bounds = CGRectMake(0, 0, sizeWidth, size.height);
+        self.currentIndexPath = indexPath;
     }else if ([_dataSource menu:self numberOfItemsInRow:indexPath.row column:indexPath.column] > 0) { //changed by xiyang 解决当column不为0时默认选中为column=1，row=0，item=0导致无法选中的bug
         title.string = [_dataSource menu:self titleForItemsInRowAtIndexPath:indexPath];
         if (trigger) {
@@ -209,7 +210,9 @@
         CGSize size = [self calculateTitleSizeWithString:title.string];
         CGFloat sizeWidth = (size.width < (self.frame.size.width / _numOfMenu) - 25) ? size.width : self.frame.size.width / _numOfMenu - 25;
         title.bounds = CGRectMake(0, 0, sizeWidth, size.height);
+        self.currentIndexPath = indexPath;
     }
+
 }
 
 - (void)selectIndexPath:(DOPIndexPath *)indexPath {
@@ -768,19 +771,25 @@
     
     
     if (_leftTableView == tableView) {
+        self.currentIndexPath = [DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:indexPath.row];
         BOOL haveItem = [self confiMenuWithSelectRow:indexPath.row];
         BOOL isClickHaveItemValid = self.isClickHaveItemValid ? YES : haveItem;
         
         if (isClickHaveItemValid && _delegate && [_delegate respondsToSelector:@selector(menu:didSelectRowAtIndexPath:)]) {
-            [self.delegate menu:self didSelectRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:indexPath.row]];
+            
+            [self.delegate menu:self didSelectRowAtIndexPath:self.currentIndexPath];
+            
         } else {
             //TODO: delegate is nil
         }
     } else {
+        NSInteger currentSelectedMenudRow = [_currentSelectRowArray[_currentSelectedMenudIndex] integerValue];
+        self.currentIndexPath = [DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:currentSelectedMenudRow item:indexPath.row];
+        
         [self confiMenuWithSelectItem:indexPath.item];
         if (self.delegate && [_delegate respondsToSelector:@selector(menu:didSelectRowAtIndexPath:)]) {
-            NSInteger currentSelectedMenudRow = [_currentSelectRowArray[_currentSelectedMenudIndex] integerValue];
-            [self.delegate menu:self didSelectRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:currentSelectedMenudRow item:indexPath.row]];
+            
+            [self.delegate menu:self didSelectRowAtIndexPath:self.currentIndexPath];
         } else {
             //TODO: delegate is nil
             
