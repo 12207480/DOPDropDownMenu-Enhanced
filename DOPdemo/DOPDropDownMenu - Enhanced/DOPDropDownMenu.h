@@ -89,6 +89,12 @@
 @end
 
 #pragma mark - interface
+
+typedef NS_ENUM(NSInteger, DOPIndicatorAlignType) {
+    DOPIndicatorAlignTypeRight = 0, //指示图标居右
+    DOPIndicatorAlignTypeCloseToTitle, // 指示图标挨着文字，有一个默认间距设置为3
+};
+
 @interface DOPDropDownMenu : UIView <UITableViewDataSource, UITableViewDelegate>
 
 @property (nonatomic, weak) id <DOPDropDownMenuDataSource> dataSource;
@@ -107,6 +113,10 @@
 
 @property (nonatomic, getter=isRemainMenuTitle) BOOL remainMenuTitle; // 切换条件时是否更改menu title
 @property (nonatomic, strong) NSMutableArray  *currentSelectRowArray; // 恢复默认选项用
+@property (nonatomic, strong) NSArray<NSString *> *indicatorImageNames;// 自定义指示器图片(在设置dataSource之前调用才会生效)
+@property (nonatomic, strong) NSArray<NSNumber *> *indicatorAnimates;  // 指示器图片是否可以transform(在设置dataSource之前调用才会生效)
+@property (nonatomic, assign) DOPIndicatorAlignType indicatorAlignType;
+
 /**
  *  the width of menu will be set to screen width defaultly
  *

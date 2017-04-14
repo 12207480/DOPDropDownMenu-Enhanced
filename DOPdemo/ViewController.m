@@ -38,6 +38,8 @@
     
     // 添加下拉菜单
     DOPDropDownMenu *menu = [[DOPDropDownMenu alloc] initWithOrigin:CGPointMake(0, 64) andHeight:44];
+    menu.indicatorImageNames = @[@"dop_icon_default_indicator"];
+    menu.indicatorAlignType = DOPIndicatorAlignTypeCloseToTitle;
     menu.delegate = self;
     menu.dataSource = self;
     [self.view addSubview:menu];

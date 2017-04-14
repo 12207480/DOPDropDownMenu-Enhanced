@@ -9,6 +9,8 @@
 
 #import "DOPDropDownMenu.h"
 
+#define kMarginBetweenImageAndLabel 3
+
 @implementation DOPIndexPath
 - (instancetype)initWithColumn:(NSInteger)column row:(NSInteger)row {
     self = [super init];
@@ -91,6 +93,7 @@
 @property (nonatomic, copy) NSArray *titles;
 @property (nonatomic, copy) NSArray *indicators;
 @property (nonatomic, copy) NSArray *bgLayers;
+@property (nonatomic, assign) BOOL indicatorIsImageView;
 
 @end
 
@@ -194,9 +197,8 @@
         if (_currentSelectRowArray.count > indexPath.column) {
             _currentSelectRowArray[indexPath.column] = @(indexPath.row);
         }
-        CGSize size = [self calculateTitleSizeWithString:title.string];
-        CGFloat sizeWidth = (size.width < (self.frame.size.width / _numOfMenu) - 25) ? size.width : self.frame.size.width / _numOfMenu - 25;
-        title.bounds = CGRectMake(0, 0, sizeWidth, size.height);
+        id indicator = _indicators[indexPath.column];
+        [self layoutIndicator:indicator withTitle:title];
     }else if ([_dataSource menu:self numberOfItemsInRow:indexPath.row column:indexPath.column] > indexPath.column) {
         title.string = [_dataSource menu:self titleForItemsInRowAtIndexPath:indexPath];
         if (trigger) {
@@ -205,9 +207,8 @@
         if (_currentSelectRowArray.count > indexPath.column) {
             _currentSelectRowArray[indexPath.column] = @(indexPath.row);
         }
-        CGSize size = [self calculateTitleSizeWithString:title.string];
-        CGFloat sizeWidth = (size.width < (self.frame.size.width / _numOfMenu) - 25) ? size.width : self.frame.size.width / _numOfMenu - 25;
-        title.bounds = CGRectMake(0, 0, sizeWidth, size.height);
+        id indicator = _indicators[indexPath.column];
+        [self layoutIndicator:indicator withTitle:title];
     }
 }
 
@@ -227,6 +228,12 @@
         _numOfMenu = [_dataSource numberOfColumnsInMenu:self];
     } else {
         _numOfMenu = 1;
+    }
+    
+    if (self.indicatorImageNames && self.indicatorImageNames.count) {
+        self.indicatorIsImageView = YES;
+    }else {
+        self.indicatorIsImageView = NO;
     }
     
     _currentSelectRowArray = [NSMutableArray arrayWithCapacity:_numOfMenu];
@@ -273,18 +280,42 @@
         [self.layer addSublayer:title];
         [tempTitles addObject:title];
         //indicator
-        CAShapeLayer *indicator = [self createIndicatorWithColor:self.indicatorColor andPosition:CGPointMake((i + 1)*separatorLineInterval - 10, self.frame.size.height / 2)];
-        [self.layer addSublayer:indicator];
-        [tempIndicators addObject:indicator];
-        
-        //separator
-        if (i != _numOfMenu - 1) {
-            CGPoint separatorPosition = CGPointMake(ceilf((i + 1) * separatorLineInterval-1), self.frame.size.height / 2);
-            CAShapeLayer *separator = [self createSeparatorLineWithColor:self.separatorColor andPosition:separatorPosition];
-            [self.layer addSublayer:separator];
+        if (self.indicatorIsImageView) {
+            CGFloat textMaxX = CGRectGetMaxX(title.frame);
+            UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(textMaxX + 1, self.frame.size.height / 2, 8, 4)];
+            
+            if (self.indicatorImageNames && self.indicatorImageNames.count > i)
+            {
+                UIImage *indicatarImage = [UIImage imageNamed:self.indicatorImageNames[i]];
+                //更具图片的尺寸来设置frame
+                CGSize imageViewSize = indicatarImage.size;
+                CGRect frame = imageView.frame;
+                frame.size = imageViewSize;
+                frame.origin.y = (self.frame.size.height - imageViewSize.height)/2;//居中
+                imageView.frame = frame;
+                imageView.image = indicatarImage;
+            }else
+            {
+                imageView.image = [UIImage imageNamed:@"dop_icon_default_indicator"];
+            }
+            
+            [self addSubview:imageView];
+            imageView.tag = i;
+            [tempIndicators addObject:imageView];
+        }else {
+            CAShapeLayer *indicator = [self createIndicatorWithColor:self.indicatorColor andPosition:CGPointMake((i + 1)*separatorLineInterval - 10, self.frame.size.height / 2)];
+            [self.layer addSublayer:indicator];
+            [tempIndicators addObject:indicator];
+            
+            //separator
+            if (i != _numOfMenu - 1) {
+                CGPoint separatorPosition = CGPointMake(ceilf((i + 1) * separatorLineInterval-1), self.frame.size.height / 2);
+                CAShapeLayer *separator = [self createSeparatorLineWithColor:self.separatorColor andPosition:separatorPosition];
+                [self.layer addSublayer:separator];
+            }
         }
         
-        
+        [self layoutIndicator:tempIndicators[i] withTitle:tempTitles[i]];
     }
     _titles = [tempTitles copy];
     _indicators = [tempIndicators copy];
@@ -309,6 +340,7 @@
         _indicatorColor = kTextColor;
         _tableViewHeight = IS_IPHONE_4_OR_LESS ? 200 : kTableViewHeight;
         _isClickHaveItemValid = YES;
+        _indicatorAlignType = DOPIndicatorAlignTypeRight;
         
         //lefttableView init
         _leftTableView = [[UITableView alloc] initWithFrame:CGRectMake(origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width/2, 0) style:UITableViewStylePlain];
@@ -482,8 +514,36 @@
     }
 }
 
+#pragma mark - Private Method
+
+- (void)layoutIndicator:(id)indicator withTitle:(CATextLayer *)title {
+    CGSize size = [self calculateTitleSizeWithString:title.string];
+    CGFloat sizeWidth = (size.width < (self.frame.size.width / _numOfMenu) - 25 -kMarginBetweenImageAndLabel) ? size.width : self.frame.size.width / _numOfMenu - 25 - kMarginBetweenImageAndLabel;
+    title.bounds = CGRectMake(0, 0, sizeWidth, size.height);
+    if (self.indicatorAlignType == DOPIndicatorAlignTypeCloseToTitle) {
+        if (self.indicatorIsImageView) {
+            CGRect indicatorFrame = ((UIImageView *)indicator).frame;
+            indicatorFrame.origin.x = CGRectGetMaxX(title.frame) + kMarginBetweenImageAndLabel;
+            ((UIImageView *)indicator).frame = indicatorFrame;
+        }else {
+            CGRect indicatorFrame = ((CAShapeLayer *)indicator).frame;
+            indicatorFrame.origin.x = CGRectGetMaxX(title.frame) + kMarginBetweenImageAndLabel;
+            ((CAShapeLayer *)indicator).frame = indicatorFrame;
+        }
+    }
+}
+
 #pragma mark - animation method
-- (void)animateIndicator:(CAShapeLayer *)indicator Forward:(BOOL)forward complete:(void(^)())complete {
+- (void)animateIndicator:(id)indicator Forward:(BOOL)forward complete:(void(^)())complete {
+    if (self.indicatorIsImageView) {
+        [self animateIndicatorImageView:(UIImageView *)indicator Forward:forward complete:complete];
+    }else {
+        [self animateIndicatorShapeLayer:(CAShapeLayer *)indicator Forward:forward complete:complete];
+    }
+}
+
+- (void)animateIndicatorShapeLayer:(CAShapeLayer *)indicator Forward:(BOOL)forward complete:(void(^)())complete
+{
     [CATransaction begin];
     [CATransaction setAnimationDuration:0.25];
     [CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithControlPoints:0.4 :0.0 :0.2 :1.0]];
@@ -506,6 +566,21 @@
     } else {
         // 收缩
         indicator.fillColor = _textColor.CGColor;
+    }
+    
+    complete();
+}
+
+- (void)animateIndicatorImageView:(UIImageView *)indicator Forward:(BOOL)forward complete:(void(^)())complete {
+    NSInteger tapedIndex = indicator.tag;
+    BOOL canTransform = YES;
+    if (self.indicatorAnimates && self.indicatorAnimates.count > tapedIndex) {
+        canTransform = [self.indicatorAnimates[tapedIndex] boolValue];
+    }
+    if (forward && canTransform) {
+        indicator.transform =  CGAffineTransformMakeRotation(M_PI);
+    }else{
+        indicator.transform = CGAffineTransformIdentity;
     }
     
     complete();
@@ -605,8 +680,10 @@
     complete();
 }
 
-- (void)animateIdicator:(CAShapeLayer *)indicator background:(UIView *)background tableView:(UITableView *)tableView title:(CATextLayer *)title forward:(BOOL)forward complecte:(void(^)())complete{
-    
+- (void)animateIdicator:(id)indicator background:(UIView *)background tableView:(UITableView *)tableView title:(CATextLayer *)title forward:(BOOL)forward complecte:(void(^)())complete{
+    if (self.indicatorAlignType == DOPIndicatorAlignTypeCloseToTitle) {
+        [self layoutIndicator:indicator withTitle:title];
+    }
     [self animateIndicator:indicator Forward:forward complete:^{
         [self animateTitle:title show:forward complete:^{
             [self animateBackGroundView:background show:forward complete:^{
