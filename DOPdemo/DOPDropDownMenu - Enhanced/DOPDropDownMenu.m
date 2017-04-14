@@ -306,13 +306,12 @@
             CAShapeLayer *indicator = [self createIndicatorWithColor:self.indicatorColor andPosition:CGPointMake((i + 1)*separatorLineInterval - 10, self.frame.size.height / 2)];
             [self.layer addSublayer:indicator];
             [tempIndicators addObject:indicator];
-            
-            //separator
-            if (i != _numOfMenu - 1) {
-                CGPoint separatorPosition = CGPointMake(ceilf((i + 1) * separatorLineInterval-1), self.frame.size.height / 2);
-                CAShapeLayer *separator = [self createSeparatorLineWithColor:self.separatorColor andPosition:separatorPosition];
-                [self.layer addSublayer:separator];
-            }
+        }
+        //separator
+        if (i != _numOfMenu - 1) {
+            CGPoint separatorPosition = CGPointMake(ceilf((i + 1) * separatorLineInterval-1), self.frame.size.height / 2);
+            CAShapeLayer *separator = [self createSeparatorLineWithColor:self.separatorColor andPosition:separatorPosition];
+            [self.layer addSublayer:separator];
         }
         
         [self layoutIndicator:tempIndicators[i] withTitle:tempTitles[i]];
