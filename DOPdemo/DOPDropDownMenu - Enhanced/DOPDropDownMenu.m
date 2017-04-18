@@ -94,6 +94,7 @@
 @property (nonatomic, copy) NSArray *indicators;
 @property (nonatomic, copy) NSArray *bgLayers;
 @property (nonatomic, assign) BOOL indicatorIsImageView;
+@property (nonatomic, assign) CGFloat dropDownViewWidth;    // 以属性的形式，方便以后修改
 
 @end
 
@@ -323,8 +324,11 @@
 
 #pragma mark - init method
 - (instancetype)initWithOrigin:(CGPoint)origin andHeight:(CGFloat)height {
-    CGSize screenSize = [UIScreen mainScreen].bounds.size;
-    self = [self initWithFrame:CGRectMake(origin.x, origin.y, screenSize.width, height)];
+    return [self initWithOrigin:origin width:[UIScreen mainScreen].bounds.size.width andHeight:height];
+}
+
+- (instancetype)initWithOrigin:(CGPoint)origin width:(CGFloat)width andHeight:(CGFloat)height {
+    self = [self initWithFrame:CGRectMake(origin.x, origin.y, width, height)];
     if (self) {
         _origin = origin;
         _currentSelectedMenudIndex = -1;
@@ -338,11 +342,13 @@
         _detailTextColor = kDetailTextColor;
         _indicatorColor = kTextColor;
         _tableViewHeight = IS_IPHONE_4_OR_LESS ? 200 : kTableViewHeight;
+        _dropDownViewWidth = [UIScreen mainScreen].bounds.size.width;
         _isClickHaveItemValid = YES;
         _indicatorAlignType = DOPIndicatorAlignTypeRight;
+        CGSize dropDownViewSize = CGSizeMake(_dropDownViewWidth, [UIScreen mainScreen].bounds.size.height);
         
         //lefttableView init
-        _leftTableView = [[UITableView alloc] initWithFrame:CGRectMake(origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width/2, 0) style:UITableViewStylePlain];
+        _leftTableView = [[UITableView alloc] initWithFrame:CGRectMake(origin.x, self.frame.origin.y + self.frame.size.height, dropDownViewSize.width/2, 0) style:UITableViewStylePlain];
         _leftTableView.rowHeight = kTableViewCellHeight;
         _leftTableView.dataSource = self;
         _leftTableView.delegate = self;
@@ -351,7 +357,7 @@
         _leftTableView.tableFooterView = [[UIView alloc]init];
         
         //righttableView init
-        _rightTableView = [[UITableView alloc] initWithFrame:CGRectMake(origin.x + self.frame.size.width/2, self.frame.origin.y + self.frame.size.height, self.frame.size.width/2, 0) style:UITableViewStylePlain];
+        _rightTableView = [[UITableView alloc] initWithFrame:CGRectMake(origin.x + _dropDownViewWidth/2, self.frame.origin.y + self.frame.size.height, dropDownViewSize.width/2, 0) style:UITableViewStylePlain];
         _rightTableView.rowHeight = kTableViewCellHeight;
         _rightTableView.dataSource = self;
         _rightTableView.delegate = self;
@@ -359,7 +365,7 @@
         _rightTableView.separatorInset = UIEdgeInsetsZero;
         //_rightTableView.tableFooterView = [[UIView alloc]init];
         
-        _buttomImageView = [[UIImageView alloc]initWithFrame:CGRectMake(origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width, kButtomImageViewHeight)];
+        _buttomImageView = [[UIImageView alloc]initWithFrame:CGRectMake(origin.x, self.frame.origin.y + self.frame.size.height, dropDownViewSize.width, kButtomImageViewHeight)];
         _buttomImageView.image = [UIImage imageNamed:@"icon_chose_bottom"];
         
         //self tapped
@@ -368,14 +374,14 @@
         [self addGestureRecognizer:tapGesture];
         
         //background init and tapped
-        _backGroundView = [[UIView alloc] initWithFrame:CGRectMake(origin.x, origin.y, screenSize.width, screenSize.height)];
+        _backGroundView = [[UIView alloc] initWithFrame:CGRectMake(origin.x, origin.y + height, dropDownViewSize.width, dropDownViewSize.height)];
         _backGroundView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.0];
         _backGroundView.opaque = NO;
         UIGestureRecognizer *gesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(backgroundTapped:)];
         [_backGroundView addGestureRecognizer:gesture];
         
         //add bottom shadow
-        UIView *bottomShadow = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height-0.5, screenSize.width, 0.5)];
+        UIView *bottomShadow = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height-0.5, width, 0.5)];
         bottomShadow.backgroundColor = kSeparatorColor;
         bottomShadow.hidden = YES;
         [self addSubview:bottomShadow];
@@ -620,17 +626,17 @@
     
     if (show) {
         if (haveItems) {
-            _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width/2, 0);
-            _rightTableView.frame = CGRectMake(self.origin.x + self.frame.size.width/2, self.frame.origin.y + self.frame.size.height, self.frame.size.width/2, 0);
+            _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth/2, 0);
+            _rightTableView.frame = CGRectMake(self.origin.x + _dropDownViewWidth/2, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth/2, 0);
             [self.superview addSubview:_leftTableView];
             [self.superview addSubview:_rightTableView];
         } else {
-            _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width, 0);
-            _rightTableView.frame = CGRectMake(self.origin.x + self.frame.size.width/2, self.frame.origin.y + self.frame.size.height, self.frame.size.width/2, 0);
+            _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth, 0);
+            _rightTableView.frame = CGRectMake(self.origin.x + _dropDownViewWidth/2, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth/2, 0);
             [self.superview addSubview:_leftTableView];
             
         }
-        _buttomImageView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width, kButtomImageViewHeight);
+        _buttomImageView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth, kButtomImageViewHeight);
         [self.superview addSubview:_buttomImageView];
         
         NSInteger num = [_leftTableView numberOfRowsInSection:0];
@@ -638,24 +644,24 @@
         
         [UIView animateWithDuration:0.2 animations:^{
             if (haveItems) {
-                _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width/2, tableViewHeight);
+                _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth/2, tableViewHeight);
                 
-                _rightTableView.frame = CGRectMake(self.origin.x + self.frame.size.width/2, self.frame.origin.y + self.frame.size.height, self.frame.size.width/2, tableViewHeight);
+                _rightTableView.frame = CGRectMake(self.origin.x + _dropDownViewWidth/2, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth/2, tableViewHeight);
             } else {
-                _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width, tableViewHeight);
+                _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth, tableViewHeight);
             }
-            _buttomImageView.frame = CGRectMake(self.origin.x, CGRectGetMaxY(_leftTableView.frame)-2, self.frame.size.width, kButtomImageViewHeight);
+            _buttomImageView.frame = CGRectMake(self.origin.x, CGRectGetMaxY(_leftTableView.frame)-2, _dropDownViewWidth, kButtomImageViewHeight);
         }];
     } else {
         [UIView animateWithDuration:0.2 animations:^{
             if (haveItems) {
-                _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width/2, 0);
+                _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth/2, 0);
                 
-                _rightTableView.frame = CGRectMake(self.origin.x + self.frame.size.width/2, self.frame.origin.y + self.frame.size.height, self.frame.size.width/2, 0);
+                _rightTableView.frame = CGRectMake(self.origin.x + _dropDownViewWidth/2, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth/2, 0);
             } else {
-                _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width, 0);
+                _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth, 0);
             }
-            _buttomImageView.frame = CGRectMake(self.origin.x, CGRectGetMaxY(_leftTableView.frame)-2, self.frame.size.width, kButtomImageViewHeight);
+            _buttomImageView.frame = CGRectMake(self.origin.x, CGRectGetMaxY(_leftTableView.frame)-2, _dropDownViewWidth, kButtomImageViewHeight);
         } completion:^(BOOL finished) {
             if (_rightTableView.superview) {
                 [_rightTableView removeFromSuperview];

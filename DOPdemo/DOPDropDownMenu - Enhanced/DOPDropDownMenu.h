@@ -91,8 +91,8 @@
 #pragma mark - interface
 
 typedef NS_ENUM(NSInteger, DOPIndicatorAlignType) {
-    DOPIndicatorAlignTypeRight = 0, //指示图标居右
-    DOPIndicatorAlignTypeCloseToTitle, // 指示图标挨着文字，有一个默认间距设置为3
+    DOPIndicatorAlignTypeRight = 0,     //指示图标居右
+    DOPIndicatorAlignTypeCloseToTitle,  //指示图标挨着文字，有一个默认间距设置为3
 };
 
 @interface DOPDropDownMenu : UIView <UITableViewDataSource, UITableViewDelegate>
@@ -127,6 +127,7 @@ typedef NS_ENUM(NSInteger, DOPIndicatorAlignType) {
  */
 - (instancetype)initWithOrigin:(CGPoint)origin andHeight:(CGFloat)height;
 
+- (instancetype)initWithOrigin:(CGPoint)origin width:(CGFloat)width andHeight:(CGFloat)height;
 // 获取title
 - (NSString *)titleForRowAtIndexPath:(DOPIndexPath *)indexPath;
 

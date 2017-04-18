@@ -18,6 +18,8 @@
 
 @property (nonatomic, strong) NSArray *sorts;
 @property (nonatomic, weak) DOPDropDownMenu *menu;
+@property (nonatomic, weak) DOPDropDownMenu *menuB;
+
 @end
 
 @implementation ViewController
@@ -37,16 +39,31 @@
     self.sorts = @[@"默认排序",@"离我最近",@"好评优先",@"人气优先",@"最新发布"];
     
     // 添加下拉菜单
-    DOPDropDownMenu *menu = [[DOPDropDownMenu alloc] initWithOrigin:CGPointMake(0, 64) andHeight:44];
-    menu.indicatorImageNames = @[@"dop_icon_default_indicator"];
-    menu.indicatorAlignType = DOPIndicatorAlignTypeCloseToTitle;
-    menu.delegate = self;
-    menu.dataSource = self;
-    [self.view addSubview:menu];
-    _menu = menu;
+    {
+        DOPDropDownMenu *menu = [[DOPDropDownMenu alloc] initWithOrigin:CGPointMake(0, 64) andHeight:44];
+        menu.indicatorImageNames = @[@"dop_icon_default_indicator"];
+        menu.indicatorAlignType = DOPIndicatorAlignTypeCloseToTitle;
+        menu.delegate = self;
+        menu.dataSource = self;
+        [self.view addSubview:menu];
+        _menu = menu;
+        
+        // 创建menu 第一次显示 不会调用点击代理，可以用这个手动调用
+        [menu selectDefalutIndexPath];
+    }
     
-    // 创建menu 第一次显示 不会调用点击代理，可以用这个手动调用
-    [menu selectDefalutIndexPath];
+    {
+        DOPDropDownMenu *menu = [[DOPDropDownMenu alloc] initWithOrigin:CGPointMake(0, 360) width:300 andHeight:44];
+        menu.indicatorImageNames = @[@"dop_icon_default_indicator"];
+        menu.indicatorAlignType = DOPIndicatorAlignTypeCloseToTitle;
+        menu.delegate = self;
+        menu.dataSource = self;
+        [self.view addSubview:menu];
+        _menuB = menu;
+        
+        // 创建menu 第一次显示 不会调用点击代理，可以用这个手动调用
+        [menu selectDefalutIndexPath];
+    }
 }
 
 - (void)menuReloadData
