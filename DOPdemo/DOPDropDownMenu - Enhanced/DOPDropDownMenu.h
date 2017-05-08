@@ -108,6 +108,10 @@ typedef NS_ENUM(NSInteger, DOPIndicatorAlignType) {
 @property (nonatomic, strong) UIFont *detailTextFont;       // font
 @property (nonatomic, strong) UIColor *separatorColor;      // 分割线颜色
 @property (nonatomic, assign) NSInteger fontSize;           // 字体大小
+
+//add by xiyang
+@property (nonatomic, copy) void(^finishedBlock)(DOPIndexPath *indexPath);//回收回调
+
 // 当有二级列表item时，点击row 是否调用点击代理方法
 @property (nonatomic, assign) BOOL isClickHaveItemValid;
 

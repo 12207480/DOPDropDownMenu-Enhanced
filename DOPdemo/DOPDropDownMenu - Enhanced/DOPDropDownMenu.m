@@ -96,6 +96,9 @@
 @property (nonatomic, assign) BOOL indicatorIsImageView;
 @property (nonatomic, assign) CGFloat dropDownViewWidth;    // 以属性的形式，方便以后修改
 
+//add by xiyang
+@property (nonatomic, retain) DOPIndexPath *currentIndexPath; //当前选中的index
+
 @end
 
 #define IS_IPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
@@ -156,7 +159,7 @@
 {
     [self animateBackGroundView:_backGroundView show:NO complete:^{
         [self animateTableView:nil show:NO complete:^{
-            _show = NO;
+            self.show = NO;
             id VC = self.dataSource;
             self.dataSource = nil;
             self.dataSource = VC;
@@ -200,7 +203,8 @@
         }
         id indicator = _indicators[indexPath.column];
         [self layoutIndicator:indicator withTitle:title];
-    }else if ([_dataSource menu:self numberOfItemsInRow:indexPath.row column:indexPath.column] > indexPath.column) {
+        self.currentIndexPath = indexPath;
+    }else if ([_dataSource menu:self numberOfItemsInRow:indexPath.row column:indexPath.column] > 0) { //changed by xiyang 解决当column不为0时默认选中为column=1，row=0，item=0导致无法选中的bug
         title.string = [_dataSource menu:self titleForItemsInRowAtIndexPath:indexPath];
         if (trigger) {
             [_delegate menu:self didSelectRowAtIndexPath:indexPath];
@@ -210,7 +214,9 @@
         }
         id indicator = _indicators[indexPath.column];
         [self layoutIndicator:indicator withTitle:title];
+        self.currentIndexPath = indexPath;
     }
+
 }
 
 - (void)selectIndexPath:(DOPIndexPath *)indexPath {
@@ -322,6 +328,19 @@
     _bgLayers = [tempBgLayers copy];
 }
 
+//add by xiyang
+-(void)setShow:(BOOL)show{
+    _show = show;
+    if (!show) {
+        if (self.currentIndexPath!=nil) {
+            
+            if (self.finishedBlock) {
+                self.finishedBlock(self.currentIndexPath);
+            }
+        }
+        NSLog(@"收回");
+    }
+}
 #pragma mark - init method
 - (instancetype)initWithOrigin:(CGPoint)origin andHeight:(CGFloat)height {
     return [self initWithOrigin:origin width:[UIScreen mainScreen].bounds.size.width andHeight:height];
@@ -332,7 +351,7 @@
     if (self) {
         _origin = origin;
         _currentSelectedMenudIndex = -1;
-        _show = NO;
+        self.show = NO;
         _fontSize = 14;
         _cellStyle = UITableViewCellStyleValue1;
         _separatorColor = kSeparatorColor;
@@ -490,7 +509,7 @@
     if (tapIndex == _currentSelectedMenudIndex && _show) {
         [self animateIdicator:_indicators[_currentSelectedMenudIndex] background:_backGroundView tableView:_leftTableView title:_titles[_currentSelectedMenudIndex] forward:NO complecte:^{
             _currentSelectedMenudIndex = tapIndex;
-            _show = NO;
+            self.show = NO;
         }];
     } else {
         _currentSelectedMenudIndex = tapIndex;
@@ -500,7 +519,7 @@
         }
         
         [self animateIdicator:_indicators[tapIndex] background:_backGroundView tableView:_leftTableView title:_titles[tapIndex] forward:YES complecte:^{
-            _show = YES;
+            self.show = YES;
         }];
     }
 }
@@ -508,7 +527,7 @@
 - (void)backgroundTapped:(UITapGestureRecognizer *)paramSender
 {
     [self animateIdicator:_indicators[_currentSelectedMenudIndex] background:_backGroundView tableView:_leftTableView title:_titles[_currentSelectedMenudIndex] forward:NO complecte:^{
-        _show = NO;
+        self.show = NO;
     }];
 }
 
@@ -836,19 +855,25 @@
     
     
     if (_leftTableView == tableView) {
+        self.currentIndexPath = [DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:indexPath.row];
         BOOL haveItem = [self confiMenuWithSelectRow:indexPath.row];
         BOOL isClickHaveItemValid = self.isClickHaveItemValid ? YES : haveItem;
         
         if (isClickHaveItemValid && _delegate && [_delegate respondsToSelector:@selector(menu:didSelectRowAtIndexPath:)]) {
-            [self.delegate menu:self didSelectRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:indexPath.row]];
+            
+            [self.delegate menu:self didSelectRowAtIndexPath:self.currentIndexPath];
+            
         } else {
             //TODO: delegate is nil
         }
     } else {
+        NSInteger currentSelectedMenudRow = [_currentSelectRowArray[_currentSelectedMenudIndex] integerValue];
+        self.currentIndexPath = [DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:currentSelectedMenudRow item:indexPath.row];
+        
         [self confiMenuWithSelectItem:indexPath.item];
         if (self.delegate && [_delegate respondsToSelector:@selector(menu:didSelectRowAtIndexPath:)]) {
-            NSInteger currentSelectedMenudRow = [_currentSelectRowArray[_currentSelectedMenudIndex] integerValue];
-            [self.delegate menu:self didSelectRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:currentSelectedMenudRow item:indexPath.row]];
+            
+            [self.delegate menu:self didSelectRowAtIndexPath:self.currentIndexPath];
         } else {
             //TODO: delegate is nil
             
@@ -881,7 +906,7 @@
         title.string = [_dataSource menu:self titleForRowAtIndexPath:
                         [DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:self.isRemainMenuTitle ? 0 : row]];
         [self animateIdicator:_indicators[_currentSelectedMenudIndex] background:_backGroundView tableView:_leftTableView title:_titles[_currentSelectedMenudIndex] forward:NO complecte:^{
-            _show = NO;
+            self.show = NO;
         }];
         return YES;
     }
@@ -892,7 +917,7 @@
     NSInteger currentSelectedMenudRow = [_currentSelectRowArray[_currentSelectedMenudIndex] integerValue];
     title.string = [_dataSource menu:self titleForItemsInRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:currentSelectedMenudRow item:item]];
     [self animateIdicator:_indicators[_currentSelectedMenudIndex] background:_backGroundView tableView:_leftTableView title:_titles[_currentSelectedMenudIndex] forward:NO complecte:^{
-        _show = NO;
+        self.show = NO;
     }];
     
 }
