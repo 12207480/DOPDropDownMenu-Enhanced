@@ -9,6 +9,8 @@
 
 #import "DOPDropDownMenu.h"
 
+#define kMarginBetweenImageAndLabel 3
+
 @implementation DOPIndexPath
 - (instancetype)initWithColumn:(NSInteger)column row:(NSInteger)row {
     self = [super init];
@@ -91,8 +93,12 @@
 @property (nonatomic, copy) NSArray *titles;
 @property (nonatomic, copy) NSArray *indicators;
 @property (nonatomic, copy) NSArray *bgLayers;
+@property (nonatomic, assign) BOOL indicatorIsImageView;
+@property (nonatomic, assign) CGFloat dropDownViewWidth;    // 以属性的形式，方便以后修改
+
 //add by xiyang
 @property (nonatomic, retain) DOPIndexPath *currentIndexPath; //当前选中的index
+
 @end
 
 #define IS_IPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
@@ -195,9 +201,8 @@
         if (_currentSelectRowArray.count > indexPath.column) {
             _currentSelectRowArray[indexPath.column] = @(indexPath.row);
         }
-        CGSize size = [self calculateTitleSizeWithString:title.string];
-        CGFloat sizeWidth = (size.width < (self.frame.size.width / _numOfMenu) - 25) ? size.width : self.frame.size.width / _numOfMenu - 25;
-        title.bounds = CGRectMake(0, 0, sizeWidth, size.height);
+        id indicator = _indicators[indexPath.column];
+        [self layoutIndicator:indicator withTitle:title];
         self.currentIndexPath = indexPath;
     }else if ([_dataSource menu:self numberOfItemsInRow:indexPath.row column:indexPath.column] > 0) { //changed by xiyang 解决当column不为0时默认选中为column=1，row=0，item=0导致无法选中的bug
         title.string = [_dataSource menu:self titleForItemsInRowAtIndexPath:indexPath];
@@ -207,9 +212,8 @@
         if (_currentSelectRowArray.count > indexPath.column) {
             _currentSelectRowArray[indexPath.column] = @(indexPath.row);
         }
-        CGSize size = [self calculateTitleSizeWithString:title.string];
-        CGFloat sizeWidth = (size.width < (self.frame.size.width / _numOfMenu) - 25) ? size.width : self.frame.size.width / _numOfMenu - 25;
-        title.bounds = CGRectMake(0, 0, sizeWidth, size.height);
+        id indicator = _indicators[indexPath.column];
+        [self layoutIndicator:indicator withTitle:title];
         self.currentIndexPath = indexPath;
     }
 
@@ -231,6 +235,12 @@
         _numOfMenu = [_dataSource numberOfColumnsInMenu:self];
     } else {
         _numOfMenu = 1;
+    }
+    
+    if (self.indicatorImageNames && self.indicatorImageNames.count) {
+        self.indicatorIsImageView = YES;
+    }else {
+        self.indicatorIsImageView = NO;
     }
     
     _currentSelectRowArray = [NSMutableArray arrayWithCapacity:_numOfMenu];
@@ -277,10 +287,33 @@
         [self.layer addSublayer:title];
         [tempTitles addObject:title];
         //indicator
-        CAShapeLayer *indicator = [self createIndicatorWithColor:self.indicatorColor andPosition:CGPointMake((i + 1)*separatorLineInterval - 10, self.frame.size.height / 2)];
-        [self.layer addSublayer:indicator];
-        [tempIndicators addObject:indicator];
-        
+        if (self.indicatorIsImageView) {
+            CGFloat textMaxX = CGRectGetMaxX(title.frame);
+            UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(textMaxX + 1, self.frame.size.height / 2, 8, 4)];
+            
+            if (self.indicatorImageNames && self.indicatorImageNames.count > i)
+            {
+                UIImage *indicatarImage = [UIImage imageNamed:self.indicatorImageNames[i]];
+                //更具图片的尺寸来设置frame
+                CGSize imageViewSize = indicatarImage.size;
+                CGRect frame = imageView.frame;
+                frame.size = imageViewSize;
+                frame.origin.y = (self.frame.size.height - imageViewSize.height)/2;//居中
+                imageView.frame = frame;
+                imageView.image = indicatarImage;
+            }else
+            {
+                imageView.image = [UIImage imageNamed:@"dop_icon_default_indicator"];
+            }
+            
+            [self addSubview:imageView];
+            imageView.tag = i;
+            [tempIndicators addObject:imageView];
+        }else {
+            CAShapeLayer *indicator = [self createIndicatorWithColor:self.indicatorColor andPosition:CGPointMake((i + 1)*separatorLineInterval - 10, self.frame.size.height / 2)];
+            [self.layer addSublayer:indicator];
+            [tempIndicators addObject:indicator];
+        }
         //separator
         if (i != _numOfMenu - 1) {
             CGPoint separatorPosition = CGPointMake(ceilf((i + 1) * separatorLineInterval-1), self.frame.size.height / 2);
@@ -288,7 +321,7 @@
             [self.layer addSublayer:separator];
         }
         
-        
+        [self layoutIndicator:tempIndicators[i] withTitle:tempTitles[i]];
     }
     _titles = [tempTitles copy];
     _indicators = [tempIndicators copy];
@@ -310,8 +343,11 @@
 }
 #pragma mark - init method
 - (instancetype)initWithOrigin:(CGPoint)origin andHeight:(CGFloat)height {
-    CGSize screenSize = [UIScreen mainScreen].bounds.size;
-    self = [self initWithFrame:CGRectMake(origin.x, origin.y, screenSize.width, height)];
+    return [self initWithOrigin:origin width:[UIScreen mainScreen].bounds.size.width andHeight:height];
+}
+
+- (instancetype)initWithOrigin:(CGPoint)origin width:(CGFloat)width andHeight:(CGFloat)height {
+    self = [self initWithFrame:CGRectMake(origin.x, origin.y, width, height)];
     if (self) {
         _origin = origin;
         _currentSelectedMenudIndex = -1;
@@ -325,10 +361,13 @@
         _detailTextColor = kDetailTextColor;
         _indicatorColor = kTextColor;
         _tableViewHeight = IS_IPHONE_4_OR_LESS ? 200 : kTableViewHeight;
+        _dropDownViewWidth = [UIScreen mainScreen].bounds.size.width;
         _isClickHaveItemValid = YES;
+        _indicatorAlignType = DOPIndicatorAlignTypeRight;
+        CGSize dropDownViewSize = CGSizeMake(_dropDownViewWidth, [UIScreen mainScreen].bounds.size.height);
         
         //lefttableView init
-        _leftTableView = [[UITableView alloc] initWithFrame:CGRectMake(origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width/2, 0) style:UITableViewStylePlain];
+        _leftTableView = [[UITableView alloc] initWithFrame:CGRectMake(origin.x, self.frame.origin.y + self.frame.size.height, dropDownViewSize.width/2, 0) style:UITableViewStylePlain];
         _leftTableView.rowHeight = kTableViewCellHeight;
         _leftTableView.dataSource = self;
         _leftTableView.delegate = self;
@@ -337,7 +376,7 @@
         _leftTableView.tableFooterView = [[UIView alloc]init];
         
         //righttableView init
-        _rightTableView = [[UITableView alloc] initWithFrame:CGRectMake(origin.x + self.frame.size.width/2, self.frame.origin.y + self.frame.size.height, self.frame.size.width/2, 0) style:UITableViewStylePlain];
+        _rightTableView = [[UITableView alloc] initWithFrame:CGRectMake(origin.x + _dropDownViewWidth/2, self.frame.origin.y + self.frame.size.height, dropDownViewSize.width/2, 0) style:UITableViewStylePlain];
         _rightTableView.rowHeight = kTableViewCellHeight;
         _rightTableView.dataSource = self;
         _rightTableView.delegate = self;
@@ -345,7 +384,7 @@
         _rightTableView.separatorInset = UIEdgeInsetsZero;
         //_rightTableView.tableFooterView = [[UIView alloc]init];
         
-        _buttomImageView = [[UIImageView alloc]initWithFrame:CGRectMake(origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width, kButtomImageViewHeight)];
+        _buttomImageView = [[UIImageView alloc]initWithFrame:CGRectMake(origin.x, self.frame.origin.y + self.frame.size.height, dropDownViewSize.width, kButtomImageViewHeight)];
         _buttomImageView.image = [UIImage imageNamed:@"icon_chose_bottom"];
         
         //self tapped
@@ -354,14 +393,14 @@
         [self addGestureRecognizer:tapGesture];
         
         //background init and tapped
-        _backGroundView = [[UIView alloc] initWithFrame:CGRectMake(origin.x, origin.y, screenSize.width, screenSize.height)];
+        _backGroundView = [[UIView alloc] initWithFrame:CGRectMake(origin.x, origin.y + height, dropDownViewSize.width, dropDownViewSize.height)];
         _backGroundView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.0];
         _backGroundView.opaque = NO;
         UIGestureRecognizer *gesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(backgroundTapped:)];
         [_backGroundView addGestureRecognizer:gesture];
         
         //add bottom shadow
-        UIView *bottomShadow = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height-0.5, screenSize.width, 0.5)];
+        UIView *bottomShadow = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height-0.5, width, 0.5)];
         bottomShadow.backgroundColor = kSeparatorColor;
         bottomShadow.hidden = YES;
         [self addSubview:bottomShadow];
@@ -499,8 +538,36 @@
     }
 }
 
+#pragma mark - Private Method
+
+- (void)layoutIndicator:(id)indicator withTitle:(CATextLayer *)title {
+    CGSize size = [self calculateTitleSizeWithString:title.string];
+    CGFloat sizeWidth = (size.width < (self.frame.size.width / _numOfMenu) - 25 -kMarginBetweenImageAndLabel) ? size.width : self.frame.size.width / _numOfMenu - 25 - kMarginBetweenImageAndLabel;
+    title.bounds = CGRectMake(0, 0, sizeWidth, size.height);
+    if (self.indicatorAlignType == DOPIndicatorAlignTypeCloseToTitle) {
+        if (self.indicatorIsImageView) {
+            CGRect indicatorFrame = ((UIImageView *)indicator).frame;
+            indicatorFrame.origin.x = CGRectGetMaxX(title.frame) + kMarginBetweenImageAndLabel;
+            ((UIImageView *)indicator).frame = indicatorFrame;
+        }else {
+            CGRect indicatorFrame = ((CAShapeLayer *)indicator).frame;
+            indicatorFrame.origin.x = CGRectGetMaxX(title.frame) + kMarginBetweenImageAndLabel;
+            ((CAShapeLayer *)indicator).frame = indicatorFrame;
+        }
+    }
+}
+
 #pragma mark - animation method
-- (void)animateIndicator:(CAShapeLayer *)indicator Forward:(BOOL)forward complete:(void(^)())complete {
+- (void)animateIndicator:(id)indicator Forward:(BOOL)forward complete:(void(^)())complete {
+    if (self.indicatorIsImageView) {
+        [self animateIndicatorImageView:(UIImageView *)indicator Forward:forward complete:complete];
+    }else {
+        [self animateIndicatorShapeLayer:(CAShapeLayer *)indicator Forward:forward complete:complete];
+    }
+}
+
+- (void)animateIndicatorShapeLayer:(CAShapeLayer *)indicator Forward:(BOOL)forward complete:(void(^)())complete
+{
     [CATransaction begin];
     [CATransaction setAnimationDuration:0.25];
     [CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithControlPoints:0.4 :0.0 :0.2 :1.0]];
@@ -523,6 +590,21 @@
     } else {
         // 收缩
         indicator.fillColor = _textColor.CGColor;
+    }
+    
+    complete();
+}
+
+- (void)animateIndicatorImageView:(UIImageView *)indicator Forward:(BOOL)forward complete:(void(^)())complete {
+    NSInteger tapedIndex = indicator.tag;
+    BOOL canTransform = YES;
+    if (self.indicatorAnimates && self.indicatorAnimates.count > tapedIndex) {
+        canTransform = [self.indicatorAnimates[tapedIndex] boolValue];
+    }
+    if (forward && canTransform) {
+        indicator.transform =  CGAffineTransformMakeRotation(M_PI);
+    }else{
+        indicator.transform = CGAffineTransformIdentity;
     }
     
     complete();
@@ -563,17 +645,17 @@
     
     if (show) {
         if (haveItems) {
-            _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width/2, 0);
-            _rightTableView.frame = CGRectMake(self.origin.x + self.frame.size.width/2, self.frame.origin.y + self.frame.size.height, self.frame.size.width/2, 0);
+            _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth/2, 0);
+            _rightTableView.frame = CGRectMake(self.origin.x + _dropDownViewWidth/2, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth/2, 0);
             [self.superview addSubview:_leftTableView];
             [self.superview addSubview:_rightTableView];
         } else {
-            _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width, 0);
-            _rightTableView.frame = CGRectMake(self.origin.x + self.frame.size.width/2, self.frame.origin.y + self.frame.size.height, self.frame.size.width/2, 0);
+            _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth, 0);
+            _rightTableView.frame = CGRectMake(self.origin.x + _dropDownViewWidth/2, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth/2, 0);
             [self.superview addSubview:_leftTableView];
             
         }
-        _buttomImageView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width, kButtomImageViewHeight);
+        _buttomImageView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth, kButtomImageViewHeight);
         [self.superview addSubview:_buttomImageView];
         
         NSInteger num = [_leftTableView numberOfRowsInSection:0];
@@ -581,24 +663,24 @@
         
         [UIView animateWithDuration:0.2 animations:^{
             if (haveItems) {
-                _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width/2, tableViewHeight);
+                _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth/2, tableViewHeight);
                 
-                _rightTableView.frame = CGRectMake(self.origin.x + self.frame.size.width/2, self.frame.origin.y + self.frame.size.height, self.frame.size.width/2, tableViewHeight);
+                _rightTableView.frame = CGRectMake(self.origin.x + _dropDownViewWidth/2, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth/2, tableViewHeight);
             } else {
-                _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width, tableViewHeight);
+                _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth, tableViewHeight);
             }
-            _buttomImageView.frame = CGRectMake(self.origin.x, CGRectGetMaxY(_leftTableView.frame)-2, self.frame.size.width, kButtomImageViewHeight);
+            _buttomImageView.frame = CGRectMake(self.origin.x, CGRectGetMaxY(_leftTableView.frame)-2, _dropDownViewWidth, kButtomImageViewHeight);
         }];
     } else {
         [UIView animateWithDuration:0.2 animations:^{
             if (haveItems) {
-                _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width/2, 0);
+                _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth/2, 0);
                 
-                _rightTableView.frame = CGRectMake(self.origin.x + self.frame.size.width/2, self.frame.origin.y + self.frame.size.height, self.frame.size.width/2, 0);
+                _rightTableView.frame = CGRectMake(self.origin.x + _dropDownViewWidth/2, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth/2, 0);
             } else {
-                _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, self.frame.size.width, 0);
+                _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth, 0);
             }
-            _buttomImageView.frame = CGRectMake(self.origin.x, CGRectGetMaxY(_leftTableView.frame)-2, self.frame.size.width, kButtomImageViewHeight);
+            _buttomImageView.frame = CGRectMake(self.origin.x, CGRectGetMaxY(_leftTableView.frame)-2, _dropDownViewWidth, kButtomImageViewHeight);
         } completion:^(BOOL finished) {
             if (_rightTableView.superview) {
                 [_rightTableView removeFromSuperview];
@@ -622,8 +704,10 @@
     complete();
 }
 
-- (void)animateIdicator:(CAShapeLayer *)indicator background:(UIView *)background tableView:(UITableView *)tableView title:(CATextLayer *)title forward:(BOOL)forward complecte:(void(^)())complete{
-    
+- (void)animateIdicator:(id)indicator background:(UIView *)background tableView:(UITableView *)tableView title:(CATextLayer *)title forward:(BOOL)forward complecte:(void(^)())complete{
+    if (self.indicatorAlignType == DOPIndicatorAlignTypeCloseToTitle) {
+        [self layoutIndicator:indicator withTitle:title];
+    }
     [self animateIndicator:indicator Forward:forward complete:^{
         [self animateTitle:title show:forward complete:^{
             [self animateBackGroundView:background show:forward complete:^{

@@ -18,6 +18,8 @@
 
 @property (nonatomic, strong) NSArray *sorts;
 @property (nonatomic, weak) DOPDropDownMenu *menu;
+@property (nonatomic, weak) DOPDropDownMenu *menuB;
+
 @end
 
 @implementation ViewController
