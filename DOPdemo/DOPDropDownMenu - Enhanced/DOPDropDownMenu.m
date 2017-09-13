@@ -186,7 +186,7 @@
     CATextLayer *title = (CATextLayer *)_titles[indexPath.column];
     
     if (indexPath.item < 0 ) {
-        if (!_isClickHaveItemValid && [_dataSource menu:self numberOfItemsInRow:indexPath.row column:indexPath.column] > 0){
+        if (!_isClickHaveItemValid && _dataSourceFlags.numberOfItemsInRow && [_dataSource menu:self numberOfItemsInRow:indexPath.row column:indexPath.column] > 0){
             title.string = [_dataSource menu:self titleForItemsInRowAtIndexPath:[DOPIndexPath indexPathWithCol:indexPath.column row:self.isRemainMenuTitle ? 0 : indexPath.row item:0]];
             if (trigger) {
                 [_delegate menu:self didSelectRowAtIndexPath:[DOPIndexPath indexPathWithCol:indexPath.column row:indexPath.row item:0]];
@@ -204,7 +204,7 @@
         id indicator = _indicators[indexPath.column];
         [self layoutIndicator:indicator withTitle:title];
         self.currentIndexPath = indexPath;
-    }else if ([_dataSource menu:self numberOfItemsInRow:indexPath.row column:indexPath.column] > 0) { //changed by xiyang 解决当column不为0时默认选中为column=1，row=0，item=0导致无法选中的bug
+    }else if (_dataSourceFlags.numberOfItemsInRow && [_dataSource menu:self numberOfItemsInRow:indexPath.row column:indexPath.column] > 0) { //changed by xiyang 解决当column不为0时默认选中为column=1，row=0，item=0导致无法选中的bug
         title.string = [_dataSource menu:self titleForItemsInRowAtIndexPath:indexPath];
         if (trigger) {
             [_delegate menu:self didSelectRowAtIndexPath:indexPath];
