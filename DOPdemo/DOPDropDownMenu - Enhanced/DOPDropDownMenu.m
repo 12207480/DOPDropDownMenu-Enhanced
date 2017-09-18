@@ -364,6 +364,7 @@
         _fontSize = 14;
         _cellStyle = UITableViewCellStyleValue1;
         _separatorColor = kSeparatorColor;
+        _separatorHeighPercent = 0.5;
         _textColor = kTextColor;
         _textSelectedColor = kTextSelectColor;
         _detailTextFont = [UIFont systemFontOfSize:11];
@@ -454,9 +455,10 @@
 - (CAShapeLayer *)createSeparatorLineWithColor:(UIColor *)color andPosition:(CGPoint)point {
     CAShapeLayer *layer = [CAShapeLayer new];
     
+    CGFloat height = CGRectGetHeight(self.frame) * _separatorHeighPercent;
     UIBezierPath *path = [UIBezierPath new];
     [path moveToPoint:CGPointMake(160,0)];
-    [path addLineToPoint:CGPointMake(160, 20)];
+    [path addLineToPoint:CGPointMake(160, height)];
     
     layer.path = path.CGPath;
     layer.lineWidth = 1;

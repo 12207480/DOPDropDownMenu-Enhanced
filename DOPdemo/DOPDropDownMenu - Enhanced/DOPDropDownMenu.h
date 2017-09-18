@@ -113,6 +113,7 @@ typedef NS_ENUM(NSInteger, DOPIndicatorAlignType) {
 @property (nonatomic, strong) UIFont *detailTextFont;       // font
 @property (nonatomic, strong) UIColor *separatorColor;      // 分割线颜色
 @property (nonatomic, assign) NSInteger fontSize;           // 字体大小
+@property (nonatomic, assign) CGFloat separatorHeighPercent; // 分割线高度占比，默认 50%，值范围为 0-1 (在设置dataSource之前调用才会生效)
 
 //add by xiyang
 @property (nonatomic, copy) void(^finishedBlock)(DOPIndexPath *indexPath);//回收回调
