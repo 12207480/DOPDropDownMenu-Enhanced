@@ -72,6 +72,8 @@
         unsigned int imageNameForItemsInRowAtIndexPath :1;
         unsigned int detailTextForRowAtIndexPath: 1;
         unsigned int detailTextForItemsInRowAtIndexPath: 1;
+        unsigned int accessoryViewForRowAtIndexPath: 1;
+        unsigned int accessoryViewForItemsInRowAtAtIndexPath: 1;
         
     }_dataSourceFlags;
 }
@@ -262,6 +264,8 @@
     _dataSourceFlags.imageNameForItemsInRowAtIndexPath = [_dataSource respondsToSelector:@selector(menu:imageNameForItemsInRowAtIndexPath:)];
     _dataSourceFlags.detailTextForRowAtIndexPath = [_dataSource respondsToSelector:@selector(menu:detailTextForRowAtIndexPath:)];
     _dataSourceFlags.detailTextForItemsInRowAtIndexPath = [_dataSource respondsToSelector:@selector(menu:detailTextForItemsInRowAtIndexPath:)];
+    _dataSourceFlags.accessoryViewForRowAtIndexPath = [_dataSource respondsToSelector:@selector(menu:accessoryViewForRowAtIndexPath:)];
+    _dataSourceFlags.accessoryViewForItemsInRowAtAtIndexPath = [_dataSource respondsToSelector:@selector(menu:accessoryViewForItemsInRowAtAtIndexPath:)];
     
     _bottomShadow.hidden = NO;
     CGFloat textLayerInterval = self.frame.size.width / ( _numOfMenu * 2);
@@ -799,10 +803,14 @@
             [tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
         }
         
-        if (_dataSourceFlags.numberOfItemsInRow && [_dataSource menu:self numberOfItemsInRow:indexPath.row column:_currentSelectedMenudIndex]> 0){
-            cell.accessoryView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"icon_chose_arrow_nor"] highlightedImage:[UIImage imageNamed:@"icon_chose_arrow_sel"]];
+        if (_dataSourceFlags.accessoryViewForRowAtIndexPath) {
+            cell.accessoryView = [_dataSource menu:self accessoryViewForRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:indexPath.row]];
         } else {
-            cell.accessoryView = nil;
+            if (_dataSourceFlags.numberOfItemsInRow && [_dataSource menu:self numberOfItemsInRow:indexPath.row column:_currentSelectedMenudIndex]> 0){
+                cell.accessoryView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"icon_chose_arrow_nor"] highlightedImage:[UIImage imageNamed:@"icon_chose_arrow_sel"]];
+            } else {
+                cell.accessoryView = nil;
+            }
         }
         
         cell.backgroundColor = kCellBgColor;
@@ -840,7 +848,11 @@
             [_rightTableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionMiddle];
         }
         cell.backgroundColor = [UIColor whiteColor];
-        cell.accessoryView = nil;
+        if (_dataSourceFlags.accessoryViewForItemsInRowAtAtIndexPath) {
+            cell.accessoryView = [_dataSource menu:self accessoryViewForItemsInRowAtAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:indexPath.row]];
+        } else {
+            cell.accessoryView = nil;
+        }
     }
     
     return cell;

@@ -53,6 +53,9 @@
 // 新增 detailText ,right text
 - (NSString *)menu:(DOPDropDownMenu *)menu detailTextForRowAtIndexPath:(DOPIndexPath *)indexPath;
 
+// 新增 accessoryView
+- (UIView *)menu:(DOPDropDownMenu *)menu accessoryViewForRowAtIndexPath:(DOPIndexPath *)indexPath;
+
 /** 新增
  *  当有column列 row 行 返回有多少个item ，如果>0，说明有二级列表 ，=0 没有二级列表
  *  如果都没有可以不实现该协议
@@ -69,6 +72,8 @@
 - (NSString *)menu:(DOPDropDownMenu *)menu imageNameForItemsInRowAtIndexPath:(DOPIndexPath *)indexPath;
 // 新增
 - (NSString *)menu:(DOPDropDownMenu *)menu detailTextForItemsInRowAtIndexPath:(DOPIndexPath *)indexPath;
+// 新增 accessoryView
+- (UIView *)menu:(DOPDropDownMenu *)menu accessoryViewForItemsInRowAtAtIndexPath:(DOPIndexPath *)indexPath;
 
 @end
 
