@@ -230,9 +230,6 @@
     }
     _dataSource = dataSource;
     
-    // remove old layer
-    [self.layer.sublayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
-    
     //configure view
     if ([_dataSource respondsToSelector:@selector(numberOfColumnsInMenu:)]) {
         _numOfMenu = [_dataSource numberOfColumnsInMenu:self];
@@ -240,10 +237,15 @@
         _numOfMenu = 1;
     }
     
+    [self.titles makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
+    [self.bgLayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
+    
     if (self.indicatorImageNames && self.indicatorImageNames.count) {
         self.indicatorIsImageView = YES;
+        [self.indicators makeObjectsPerformSelector:@selector(removeFromSuperview)];
     }else {
         self.indicatorIsImageView = NO;
+        [self.indicators makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
     }
     
     _currentSelectRowArray = [NSMutableArray arrayWithCapacity:_numOfMenu];
