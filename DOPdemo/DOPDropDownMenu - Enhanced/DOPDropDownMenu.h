@@ -125,7 +125,7 @@ typedef NS_ENUM(NSInteger, DOPIndicatorAlignType) {
 @property (nonatomic, strong) NSArray<NSString *> *indicatorImageNames;// 自定义指示器图片(在设置dataSource之前调用才会生效)
 @property (nonatomic, strong) NSArray<NSNumber *> *indicatorAnimates;  // 指示器图片是否可以transform(在设置dataSource之前调用才会生效)
 @property (nonatomic, assign) DOPIndicatorAlignType indicatorAlignType;
-
+@property (nonatomic, assign) BOOL showBottomImage;                    // table底部的图是否展示 default YES
 /**
  *  the width of menu will be set to screen width defaultly
  *

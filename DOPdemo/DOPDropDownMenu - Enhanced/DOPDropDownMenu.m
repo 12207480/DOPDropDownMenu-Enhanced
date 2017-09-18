@@ -371,6 +371,7 @@
         _indicatorColor = kTextColor;
         _tableViewHeight = IS_IPHONE_4_OR_LESS ? 200 : kTableViewHeight;
         _dropDownViewWidth = [UIScreen mainScreen].bounds.size.width;
+        _showBottomImage = YES;
         _isClickHaveItemValid = YES;
         _indicatorAlignType = DOPIndicatorAlignTypeRight;
         CGSize dropDownViewSize = CGSizeMake(_dropDownViewWidth, [UIScreen mainScreen].bounds.size.height);
@@ -664,8 +665,11 @@
             [self.superview addSubview:_leftTableView];
             
         }
-        _buttomImageView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth, kButtomImageViewHeight);
-        [self.superview addSubview:_buttomImageView];
+        
+        if (_showBottomImage) {
+            _buttomImageView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth, kButtomImageViewHeight);
+            [self.superview addSubview:_buttomImageView];
+        }
         
         NSInteger num = [_leftTableView numberOfRowsInSection:0];
         CGFloat tableViewHeight = num * kTableViewCellHeight > _tableViewHeight+1 ? _tableViewHeight:num*kTableViewCellHeight+1;
@@ -678,7 +682,9 @@
             } else {
                 _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth, tableViewHeight);
             }
-            _buttomImageView.frame = CGRectMake(self.origin.x, CGRectGetMaxY(_leftTableView.frame)-2, _dropDownViewWidth, kButtomImageViewHeight);
+            if (_showBottomImage) {
+                _buttomImageView.frame = CGRectMake(self.origin.x, CGRectGetMaxY(_leftTableView.frame)-2, _dropDownViewWidth, kButtomImageViewHeight);
+            }
         }];
     } else {
         [UIView animateWithDuration:0.2 animations:^{
@@ -689,13 +695,17 @@
             } else {
                 _leftTableView.frame = CGRectMake(self.origin.x, self.frame.origin.y + self.frame.size.height, _dropDownViewWidth, 0);
             }
-            _buttomImageView.frame = CGRectMake(self.origin.x, CGRectGetMaxY(_leftTableView.frame)-2, _dropDownViewWidth, kButtomImageViewHeight);
+            if (_showBottomImage) {
+                _buttomImageView.frame = CGRectMake(self.origin.x, CGRectGetMaxY(_leftTableView.frame)-2, _dropDownViewWidth, kButtomImageViewHeight);
+            }
         } completion:^(BOOL finished) {
             if (_rightTableView.superview) {
                 [_rightTableView removeFromSuperview];
             }
             [_leftTableView removeFromSuperview];
-            [_buttomImageView removeFromSuperview];
+            if (_showBottomImage) {
+                [_buttomImageView removeFromSuperview];
+            }
         }];
     }
     complete();
