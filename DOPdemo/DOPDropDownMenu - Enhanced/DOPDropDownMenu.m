@@ -334,6 +334,7 @@
     _titles = [tempTitles copy];
     _indicators = [tempIndicators copy];
     _bgLayers = [tempBgLayers copy];
+    _bottomShadow.hidden = NO;
 }
 
 //add by xiyang
