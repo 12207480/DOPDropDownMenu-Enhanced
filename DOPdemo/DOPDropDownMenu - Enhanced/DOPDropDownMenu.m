@@ -261,7 +261,6 @@
     _dataSourceFlags.detailTextForRowAtIndexPath = [_dataSource respondsToSelector:@selector(menu:detailTextForRowAtIndexPath:)];
     _dataSourceFlags.detailTextForItemsInRowAtIndexPath = [_dataSource respondsToSelector:@selector(menu:detailTextForItemsInRowAtIndexPath:)];
     
-    _bottomShadow.hidden = NO;
     CGFloat textLayerInterval = self.frame.size.width / ( _numOfMenu * 2);
     CGFloat separatorLineInterval = self.frame.size.width / _numOfMenu;
     CGFloat bgLayerInterval = self.frame.size.width / _numOfMenu;
