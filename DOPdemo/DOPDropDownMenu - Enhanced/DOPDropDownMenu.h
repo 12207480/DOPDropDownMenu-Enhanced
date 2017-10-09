@@ -53,6 +53,9 @@
 // 新增 detailText ,right text
 - (NSString *)menu:(DOPDropDownMenu *)menu detailTextForRowAtIndexPath:(DOPIndexPath *)indexPath;
 
+// 新增 accessoryView
+- (UIView *)menu:(DOPDropDownMenu *)menu accessoryViewForRowAtIndexPath:(DOPIndexPath *)indexPath;
+
 /** 新增
  *  当有column列 row 行 返回有多少个item ，如果>0，说明有二级列表 ，=0 没有二级列表
  *  如果都没有可以不实现该协议
@@ -69,6 +72,8 @@
 - (NSString *)menu:(DOPDropDownMenu *)menu imageNameForItemsInRowAtIndexPath:(DOPIndexPath *)indexPath;
 // 新增
 - (NSString *)menu:(DOPDropDownMenu *)menu detailTextForItemsInRowAtIndexPath:(DOPIndexPath *)indexPath;
+// 新增 accessoryView
+- (UIView *)menu:(DOPDropDownMenu *)menu accessoryViewForItemsInRowAtAtIndexPath:(DOPIndexPath *)indexPath;
 
 @end
 
@@ -108,6 +113,7 @@ typedef NS_ENUM(NSInteger, DOPIndicatorAlignType) {
 @property (nonatomic, strong) UIFont *detailTextFont;       // font
 @property (nonatomic, strong) UIColor *separatorColor;      // 分割线颜色
 @property (nonatomic, assign) NSInteger fontSize;           // 字体大小
+@property (nonatomic, assign) CGFloat separatorHeighPercent; // 分割线高度占比，默认 50%，值范围为 0-1 (在设置dataSource之前调用才会生效)
 
 //add by xiyang
 @property (nonatomic, copy) void(^finishedBlock)(DOPIndexPath *indexPath);//回收回调
@@ -120,7 +126,7 @@ typedef NS_ENUM(NSInteger, DOPIndicatorAlignType) {
 @property (nonatomic, strong) NSArray<NSString *> *indicatorImageNames;// 自定义指示器图片(在设置dataSource之前调用才会生效)
 @property (nonatomic, strong) NSArray<NSNumber *> *indicatorAnimates;  // 指示器图片是否可以transform(在设置dataSource之前调用才会生效)
 @property (nonatomic, assign) DOPIndicatorAlignType indicatorAlignType;
-
+@property (nonatomic, assign) BOOL showBottomImage;                    // table底部的图是否展示 default YES
 /**
  *  the width of menu will be set to screen width defaultly
  *
