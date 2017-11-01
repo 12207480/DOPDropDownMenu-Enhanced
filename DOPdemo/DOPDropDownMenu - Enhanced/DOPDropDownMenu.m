@@ -334,7 +334,7 @@
     _titles = [tempTitles copy];
     _indicators = [tempIndicators copy];
     _bgLayers = [tempBgLayers copy];
-    _bottomShadow.hidden = NO;
+    //_bottomShadow.hidden = NO;
 }
 
 //add by xiyang
@@ -415,7 +415,7 @@
         bottomShadow.backgroundColor = kSeparatorColor;
         bottomShadow.hidden = YES;
         [self addSubview:bottomShadow];
-        _bottomShadow = bottomShadow;
+//        _bottomShadow = bottomShadow;
     }
     return self;
 }
