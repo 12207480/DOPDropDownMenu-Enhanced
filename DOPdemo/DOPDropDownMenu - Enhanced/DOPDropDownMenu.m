@@ -348,6 +348,9 @@
             }
         }
         NSLog(@"收回");
+        if (self.delegate && [_delegate respondsToSelector:@selector(menu:didShow:)]) {
+            return [self.delegate menu:self didShow:show];
+        }
     }
 }
 #pragma mark - init method
