@@ -168,4 +168,7 @@
     // Dispose of any resources that can be recreated.
 }
 
+-(void)menu:(DOPDropDownMenu *)menu didShow:(BOOL)isShow {
+    NSLog(@"didShow:%d", isShow);
+}
 @end
