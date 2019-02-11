@@ -349,9 +349,9 @@
         }
         NSLog(@"收回");
     }
-    if (self.delegate && [_delegate respondsToSelector:@selector(menu:didShow:)]) {
-        return [self.delegate menu:self didShow:_show];
-    }
+//    if (self.delegate && [_delegate respondsToSelector:@selector(menu:didShow:)]) {
+//        return [self.delegate menu:self didShow:_show];
+//    }
 }
 #pragma mark - init method
 - (instancetype)initWithOrigin:(CGPoint)origin andHeight:(CGFloat)height {
@@ -525,6 +525,9 @@
         [self animateIdicator:_indicators[_currentSelectedMenudIndex] background:_backGroundView tableView:_leftTableView title:_titles[_currentSelectedMenudIndex] forward:NO complecte:^{
             _currentSelectedMenudIndex = tapIndex;
             self.show = NO;
+            if (self.delegate && [_delegate respondsToSelector:@selector(menu:didShow:)]) {
+                return [self.delegate menu:self didShow:self.show];
+            }
         }];
     } else {
         _currentSelectedMenudIndex = tapIndex;
@@ -535,6 +538,9 @@
         
         [self animateIdicator:_indicators[tapIndex] background:_backGroundView tableView:_leftTableView title:_titles[tapIndex] forward:YES complecte:^{
             self.show = YES;
+            if (self.delegate && [_delegate respondsToSelector:@selector(menu:didShow:)]) {
+                return [self.delegate menu:self didShow:self.show];
+            }
         }];
     }
 }
@@ -543,6 +549,9 @@
 {
     [self animateIdicator:_indicators[_currentSelectedMenudIndex] background:_backGroundView tableView:_leftTableView title:_titles[_currentSelectedMenudIndex] forward:NO complecte:^{
         self.show = NO;
+        if (self.delegate && [_delegate respondsToSelector:@selector(menu:didShow:)]) {
+            return [self.delegate menu:self didShow:self.show];
+        }
     }];
 }
 
@@ -939,6 +948,9 @@
                         [DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:self.isRemainMenuTitle ? 0 : row]];
         [self animateIdicator:_indicators[_currentSelectedMenudIndex] background:_backGroundView tableView:_leftTableView title:_titles[_currentSelectedMenudIndex] forward:NO complecte:^{
             self.show = NO;
+            if (self.delegate && [_delegate respondsToSelector:@selector(menu:didShow:)]) {
+                return [self.delegate menu:self didShow:self.show];
+            }
         }];
         return YES;
     }
@@ -950,6 +962,9 @@
     title.string = [_dataSource menu:self titleForItemsInRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:currentSelectedMenudRow item:item]];
     [self animateIdicator:_indicators[_currentSelectedMenudIndex] background:_backGroundView tableView:_leftTableView title:_titles[_currentSelectedMenudIndex] forward:NO complecte:^{
         self.show = NO;
+        if (self.delegate && [_delegate respondsToSelector:@selector(menu:didShow:)]) {
+            return [self.delegate menu:self didShow:self.show];
+        }
     }];
     
 }
