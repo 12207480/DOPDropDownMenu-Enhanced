@@ -91,6 +91,11 @@
  */
 - (NSIndexPath *)menu:(DOPDropDownMenu *)menu willSelectRowAtIndexPath:(DOPIndexPath *)indexPath;
 
+/**
+ * Called after the menu showed or hidden.
+ */
+-(void)menu:(DOPDropDownMenu *)menu didShow:(BOOL)isShow;
+
 @end
 
 #pragma mark - interface
