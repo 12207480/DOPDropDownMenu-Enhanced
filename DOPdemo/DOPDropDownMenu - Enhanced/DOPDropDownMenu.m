@@ -349,9 +349,6 @@
         }
         NSLog(@"收回");
     }
-//    if (self.delegate && [_delegate respondsToSelector:@selector(menu:didShow:)]) {
-//        return [self.delegate menu:self didShow:_show];
-//    }
 }
 #pragma mark - init method
 - (instancetype)initWithOrigin:(CGPoint)origin andHeight:(CGFloat)height {
@@ -526,7 +523,7 @@
             _currentSelectedMenudIndex = tapIndex;
             self.show = NO;
             if (self.delegate && [_delegate respondsToSelector:@selector(menu:didShow:)]) {
-                return [self.delegate menu:self didShow:self.show];
+                [self.delegate menu:self didShow:self.show];
             }
         }];
     } else {
@@ -539,7 +536,7 @@
         [self animateIdicator:_indicators[tapIndex] background:_backGroundView tableView:_leftTableView title:_titles[tapIndex] forward:YES complecte:^{
             self.show = YES;
             if (self.delegate && [_delegate respondsToSelector:@selector(menu:didShow:)]) {
-                return [self.delegate menu:self didShow:self.show];
+                [self.delegate menu:self didShow:self.show];
             }
         }];
     }
@@ -550,7 +547,7 @@
     [self animateIdicator:_indicators[_currentSelectedMenudIndex] background:_backGroundView tableView:_leftTableView title:_titles[_currentSelectedMenudIndex] forward:NO complecte:^{
         self.show = NO;
         if (self.delegate && [_delegate respondsToSelector:@selector(menu:didShow:)]) {
-            return [self.delegate menu:self didShow:self.show];
+            [self.delegate menu:self didShow:self.show];
         }
     }];
 }
@@ -884,8 +881,17 @@
 
 #pragma mark - tableview delegate
 - (NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    DOPIndexPath *willSelectIndexPath = [DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:indexPath.row];
+    
+    if (_leftTableView == tableView) {
+        //TODO:
+    } else {
+        NSInteger currentSelectedMenudRow = [_currentSelectRowArray[_currentSelectedMenudIndex] integerValue];
+        willSelectIndexPath = [DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:currentSelectedMenudRow item:indexPath.row];
+    }
+    
     if (self.delegate && [_delegate respondsToSelector:@selector(menu:willSelectRowAtIndexPath:)]) {
-        return [self.delegate menu:self willSelectRowAtIndexPath:[DOPIndexPath indexPathWithCol:_currentSelectedMenudIndex row:indexPath.row]];
+        return [self.delegate menu:self willSelectRowAtIndexPath:willSelectIndexPath];
     } else {
         //TODO: delegate is nil
         return indexPath;
@@ -949,7 +955,7 @@
         [self animateIdicator:_indicators[_currentSelectedMenudIndex] background:_backGroundView tableView:_leftTableView title:_titles[_currentSelectedMenudIndex] forward:NO complecte:^{
             self.show = NO;
             if (self.delegate && [_delegate respondsToSelector:@selector(menu:didShow:)]) {
-                return [self.delegate menu:self didShow:self.show];
+                [self.delegate menu:self didShow:self.show];
             }
         }];
         return YES;
@@ -963,7 +969,7 @@
     [self animateIdicator:_indicators[_currentSelectedMenudIndex] background:_backGroundView tableView:_leftTableView title:_titles[_currentSelectedMenudIndex] forward:NO complecte:^{
         self.show = NO;
         if (self.delegate && [_delegate respondsToSelector:@selector(menu:didShow:)]) {
-            return [self.delegate menu:self didShow:self.show];
+            [self.delegate menu:self didShow:self.show];
         }
     }];
     

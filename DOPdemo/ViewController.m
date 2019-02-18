@@ -154,6 +154,20 @@
     return nil;
 }
 
+- (NSIndexPath *)menu:(DOPDropDownMenu *)menu willSelectRowAtIndexPath:(DOPIndexPath *)indexPath
+{
+    if (indexPath.item >= 0) {
+        NSLog(@"将要点击 %ld - %ld - %ld 项目",indexPath.column,indexPath.row,indexPath.item);
+    }else {
+        NSLog(@"将要点击 %ld - %ld 项目",indexPath.column,indexPath.row);
+    }
+    if (indexPath.item > 0) {
+        return [NSIndexPath indexPathForRow:indexPath.item inSection:0];
+    } else {
+        return [NSIndexPath indexPathForRow:indexPath.row inSection:indexPath.column];
+    }
+}
+
 - (void)menu:(DOPDropDownMenu *)menu didSelectRowAtIndexPath:(DOPIndexPath *)indexPath
 {
     if (indexPath.item >= 0) {
